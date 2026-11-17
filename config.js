@@ -4,6 +4,6 @@
 // 3. Save this file and upload the folder again.
 // These two values are meant to be public. Your data is protected by the sign-in rules in supabase-setup.sql.
 window.PLANNER_CONFIG = {
-  url: "",
-  anonKey: ""
+  url: "https://dpsyijnbufraoabtnhiy.supabase.co",
+  anonKey: "sb_publishable_XsgFwsx2ujNE8dCpV6SCpg_0ejCWN5B"
 };
