@@ -1,0 +1,27 @@
+HARINI'S WEDDING PLANNER - install on Android and iPhone
+
+This folder is an installable web app. It works offline after the first open.
+It must be put online once (free) because phones only allow installing from a web link.
+
+1. PUT IT ONLINE (free, about 2 minutes)
+   - Unzip this file. First do SETUP-SUPABASE.txt (it adds sign-in and shared editing).
+   - Go to https://app.netlify.com/drop and drag the whole unzipped folder onto the page.
+   - Netlify gives you a link that starts with https://. Open it on your phone.
+   (Cloudflare Pages or GitHub Pages work too.)
+
+2. INSTALL ON ANDROID
+   - Open the link in Chrome.
+   - Tap the menu (three dots), then "Install app" or "Add to Home screen".
+
+3. INSTALL ON IPHONE
+   - Open the link in Safari (not Chrome).
+   - Tap Share, then "Add to Home Screen".
+   - Open it from the Home Screen icon. For reminders, turn on alerts inside the Events tab.
+
+4. A REAL .APK FILE (optional)
+   - Go to https://www.pwabuilder.com, paste your https link, and choose the Android package.
+   - An App Store version for iPhone needs a Mac with Xcode and a paid Apple Developer account.
+
+NOTES
+   - Data and photos are shared by everyone you approve, and also kept on each phone for offline use.
+   - Reminders show while the app is open. For alerts when it is closed, use "Add to calendar" on an event.

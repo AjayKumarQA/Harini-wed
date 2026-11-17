@@ -1,0 +1,57 @@
+HARINI'S WEDDING PLANNER - sign-in and shared editing (free Supabase setup)
+
+What you get: everyone signs in with email and password. New people wait on a
+"Waiting for approval" screen until you approve them. Approved people can all
+edit the same checklist, budget, guests, events and photos. Changes show up on
+other phones within about 6 seconds.
+
+PART 1 - CREATE THE FREE DATABASE (about 10 minutes, once)
+1. Go to https://supabase.com, choose Start your project, and sign up (free, no card).
+2. New project: give it a name (for example harini-planner), make up a database
+   password (save it somewhere), choose the region nearest you (Mumbai if listed).
+   Wait about 2 minutes while it starts.
+3. Left menu > SQL Editor > New query. Open supabase-setup.sql from this folder,
+   copy everything, paste it in, press Run. It should say "Success".
+4. Left menu > Authentication > Sign In / Providers (or Providers) > Email.
+   Turn OFF "Confirm email". (Your approval is the safety check, and this lets
+   people sign in straight away.) Save.
+5. Authentication > URL Configuration: set Site URL to the web address of your
+   app (the https link from Part 2). This makes the "Forgot password" email link open the app.
+6. Left menu > Project Settings > API (or "API Keys"). Copy two things:
+   - Project URL (looks like https://abcdxyz.supabase.co)
+   - The anon / public key (a long text starting with eyJ..., or "publishable key")
+   Do NOT copy the service_role / secret key. Never put that one in the app.
+
+PART 2 - PUT YOUR KEYS IN AND PUBLISH
+1. Open config.js in this folder with Notepad. Paste the URL between the first
+   quotes and the key between the second quotes. Save.
+2. Upload the whole folder to https://app.netlify.com/drop (log in first so the
+   site stays open to your family). Open the https link it gives you.
+3. Install on phones as in INSTALL.txt (Chrome > Install app, or iPhone Safari > Add to Home Screen).
+
+PART 3 - YOU ARE THE OWNER
+1. IMPORTANT: the first account created becomes the owner (admin). Open your
+   link now and choose Create account yourself BEFORE you share the link.
+2. Your existing planner data from this device (if any) is uploaded the first time you sign in.
+3. Share the link with family. They choose Create account and wait.
+4. You see a "People" button at the top with a number for people waiting.
+   Tap it > Approve. They get in within a few seconds.
+5. Same screen: Remove access, or Make admin for a co-owner.
+
+GOOD TO KNOW
+- If two people change the same item at once, the last change saved wins.
+- Photos are shrunk before upload. Free storage is 1 GB, which is thousands of photos.
+- Works offline: changes are kept on the phone and upload when you reconnect.
+- Reminders (1 hour before events) still only pop up while the app is open on that phone.
+- A free Supabase project pauses after 1 week with no use. Open the app at least
+  once a week, or tap Restore project in the Supabase dashboard if it pauses.
+- Back up now and then with Export backup (owner can Import a backup; it replaces
+  the shared data for everyone).
+- Forgot the owner account? In Supabase SQL Editor run:
+  update public.profiles set approved = true, is_admin = true where email = 'you@example.com';
+
+UPDATE (new in this version)
+- Already set up? Open supabase-setup.sql, copy all of it into Supabase > SQL Editor > Run again. It is safe to run twice. This switches on the Activity tab.
+- App lock: tap "App lock" at the top to set a 4-digit PIN for this device. Forgot it? Sign out and sign in again.
+- Checklist > Import list reads .txt, .csv and .docx files (one task per line).
+- Upload the whole folder to Netlify again so phones get the new version.

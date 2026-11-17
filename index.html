@@ -1,0 +1,2355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harini's wedding planner</title>
+<meta name="theme-color" content="#234830">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Harini Planner">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
+<style>
+:root{
+  --linen:#F4EFE8; --paper:#FFFEFB; --ink:#3A2F2A; --muted:#7A6A5F; --line:#EADFD2;
+  --rouge:#B8604F; --rouge-deep:#A24E3E; --blush:#EBCFB9; --sand:#E2B99A;
+  --forest:#2E5B3B; --forest-deep:#234830; --ochre:#C58A3C; --ochre-deep:#8E5F1B;
+  --sage-tint:#DCE5D6; --ivory:#FBF3E4; --track:#EFE5D8;
+  --script:"Mrs Saint Delafield","Snell Roundhand","Brush Script MT",cursive;
+  --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --body:"Jost",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --shadow:0 1px 2px rgba(80,55,40,.08),0 18px 34px -16px rgba(80,55,40,.28);
+  --bar:60px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:var(--ink);font:400 1rem/1.6 var(--body);-webkit-font-smoothing:antialiased;
+  background-color:var(--linen);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .4 0 0 0 0 .32 0 0 0 0 .25 0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+h1,h2,h3,h4{margin:0;font-weight:400}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--forest);outline-offset:2px}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--muted)}
+
+/* ---------- page switcher (Engagement, Reception, Wedding) ---------- */
+.pages{position:sticky;top:0;z-index:12;background:var(--forest-deep)}
+.pages :focus-visible{outline-color:#F0C987}
+.pages-in{max-width:1080px;margin:0 auto;padding:10px 20px;display:flex;gap:10px;overflow-x:auto;align-items:center;height:var(--bar)}
+.pill{flex:none;display:flex;align-items:center;gap:8px;height:40px;padding:0 20px;border-radius:99px;border:1px solid rgba(251,243,228,.4);background:transparent;color:var(--ivory);font-family:var(--serif);font-weight:600;font-size:1.05rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.pill:hover{background:rgba(251,243,228,.12)}
+.pill[aria-selected=true]{background:var(--ivory);color:var(--forest-deep);border-color:var(--ivory)}
+.pill .n{font-family:var(--body);font-size:.75rem;letter-spacing:0;padding:1px 8px;border-radius:99px;background:#F0C987;color:var(--ink);font-weight:500;text-transform:none}
+.pill.pill-add{border-style:dashed;margin-left:auto}
+
+/* ---------- cover ---------- */
+.cover{max-width:1080px;margin:0 auto;padding:clamp(36px,6vw,72px) 20px clamp(32px,5vw,56px);display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:clamp(28px,6vw,72px);align-items:center}
+.script{display:block;font-family:var(--script);font-size:clamp(4.6rem,12vw,9.2rem);line-height:.85;color:var(--ink)}
+.caps-title{display:block;font-family:var(--serif);font-weight:500;font-size:clamp(1.6rem,4.4vw,3.2rem);letter-spacing:.16em;text-transform:uppercase;line-height:1.1;margin-top:-.15em;padding-left:.1em}
+.tagline{margin:22px 0 0;max-width:42ch;color:var(--muted);font-size:1.05rem}
+.when{display:inline-flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:22px;font-weight:500}
+.when input{height:42px;padding:0 12px;border:1px solid #DCCDBB;border-radius:8px;background:var(--paper);cursor:pointer}
+.dots{display:flex;gap:10px;margin-top:26px}
+.dots i{width:26px;height:26px;border-radius:50%;box-shadow:0 0 0 3px var(--paper),0 0 0 4px var(--line)}
+.page-actions{display:flex;gap:18px;margin-top:20px}
+.link{background:none;border:0;padding:4px 0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:.92rem}
+.link:hover{color:var(--ink)}
+.link:disabled{opacity:.45;cursor:not-allowed;text-decoration:none}
+
+.arch-wrap{position:relative;isolation:isolate;justify-self:center;width:min(320px,78vw)}
+.arch-wrap::before,.arch-wrap::after{content:"";position:absolute;inset:0;border-radius:999px 999px 14px 14px;z-index:-1}
+.arch-wrap::before{background:var(--blush);transform:rotate(-6deg) translate(-22px,8px)}
+.arch-wrap::after{background:var(--sage-tint);transform:rotate(5deg) translate(22px,12px)}
+.arch{position:relative;aspect-ratio:3/4;border-radius:999px 999px 14px 14px;background:var(--paper);box-shadow:var(--shadow);display:grid;place-content:center;text-align:center;padding:30px}
+.arch::after{content:"";position:absolute;inset:12px;border:1px solid var(--ochre);border-radius:999px 999px 6px 6px;pointer-events:none}
+.arch-in{display:grid;gap:2px;justify-items:center;padding-top:18%}
+#cdNum{font-family:var(--serif);font-weight:500;font-size:clamp(4.4rem,11vw,6.8rem);line-height:1;font-variant-numeric:lining-nums}
+#cdNum.word{font-size:clamp(2.2rem,6vw,3rem);padding:.35em 0}
+#cdLabel{font-family:var(--script);font-size:clamp(2.2rem,5vw,2.8rem);line-height:1;color:var(--rouge-deep)}
+#cdSub{margin-top:12px;font-size:.9rem;color:var(--muted)}
+
+/* ---------- section tabs ---------- */
+.nav{position:sticky;top:var(--bar);z-index:10;background:rgba(244,239,232,.95);backdrop-filter:blur(6px);border-block:1px solid var(--line)}
+.nav-in{max-width:1080px;margin:0 auto;padding:0 20px;display:flex;justify-content:center;gap:clamp(4px,2vw,28px);overflow-x:auto}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:16px 10px 14px;cursor:pointer;white-space:nowrap;font-family:var(--serif);font-weight:600;font-size:1rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--rouge)}
+.tab .n{font-family:var(--body);font-size:.75rem;letter-spacing:0;min-width:22px;text-align:center;padding:1px 6px;border-radius:99px;background:var(--blush);color:var(--ink);font-weight:500}
+
+/* ---------- pages ---------- */
+.page{max-width:1080px;margin:0 auto;padding:44px 20px 24px}
+.panel[hidden]{display:none}
+.panel-head{margin-bottom:26px;text-align:center}
+.caps-sm{display:block;font-family:var(--serif);font-weight:600;font-size:1rem;letter-spacing:.26em;text-transform:uppercase;color:var(--muted)}
+.script-h{font-family:var(--script);font-size:clamp(3.4rem,8vw,5.2rem);line-height:.9;margin-top:-.05em;color:var(--ink)}
+.panel-head p{margin:10px auto 0;color:var(--muted);max-width:52ch}
+
+.sheet{background:var(--paper);border:1px solid #F0E6D9;border-radius:10px;padding:26px;box-shadow:var(--shadow)}
+.sheet+.sheet{margin-top:22px}
+.sheet h3{font-family:var(--serif);font-weight:600;font-size:1.05rem;letter-spacing:.16em;text-transform:uppercase;margin:0 0 18px;padding-bottom:12px;position:relative}
+.sheet h3::after{content:"";position:absolute;left:0;bottom:0;width:34px;height:2px;background:var(--ochre)}
+.sheet.forest{background:var(--forest);border-color:var(--forest);color:var(--ivory)}
+.sheet.forest h3::after{background:#F0C987}
+.sheet.forest .meta,.sheet.forest .dateblock span,.sheet.forest .muted{color:#CFDDCF}
+.sheet.forest .tl li{border-color:rgba(251,243,228,.22)}
+.sheet.forest .dateblock b{color:#F0C987}
+.sheet.drop{outline:2px dashed var(--forest);outline-offset:-8px}
+
+.glance{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.glance .sheet+.sheet{margin-top:0}
+.pair{display:grid;grid-template-columns:3fr 2fr;gap:22px;margin-top:22px}
+.pair .sheet+.sheet{margin-top:0}
+.fig{font-family:var(--serif);font-weight:500;font-size:2.5rem;line-height:1.05;font-variant-numeric:lining-nums tabular-nums}
+.lbl{color:var(--muted);margin:2px 0 16px}
+.ring-wrap{display:flex;align-items:center;gap:18px}
+.ring{width:112px;height:112px;flex:none}
+.ring-t{font-family:var(--serif);font-weight:600;font-size:26px;fill:var(--ink)}
+
+/* ---------- progress ---------- */
+.meter{height:10px;border-radius:99px;background:var(--track);overflow:hidden}
+.meter>i{display:block;height:100%;border-radius:inherit;background:var(--forest)}
+.meter.over>i{background:var(--rouge)}
+.stack{display:flex;height:10px;border-radius:99px;overflow:hidden;gap:2px;background:var(--track)}
+.stack i{display:block;height:100%}
+.legend{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px;font-size:.95rem}
+.legend li{display:flex;align-items:center;gap:8px}
+.legend .v{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:500}
+.legend .pct{width:42px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c,#A8A096);flex:none}
+
+/* ---------- forms ---------- */
+.add{display:flex;flex-wrap:wrap;gap:8px;padding:14px;background:#F6EEE3;border-radius:12px;margin-bottom:22px}
+.add input,.add select,.field{height:42px;padding:0 12px;border:1px solid #DCCDBB;border-radius:8px;background:var(--paper)}
+.add .grow{flex:1 1 200px;min-width:0}
+.add input[type=number]{width:140px}
+.btn{height:42px;padding:0 24px;border:0;border-radius:99px;background:var(--forest);color:var(--ivory);font-weight:500;letter-spacing:.04em;cursor:pointer}
+.btn:hover{background:var(--forest-deep)}
+.btn.quiet{background:transparent;color:var(--forest);border:1px solid var(--forest)}
+.btn.quiet:hover{background:var(--forest);color:var(--ivory)}
+.btn.warn{background:transparent;color:var(--rouge-deep);border:1px solid var(--rouge-deep)}
+.btn.warn:hover{background:var(--rouge-deep);color:#fff}
+.btn.small{height:34px;padding:0 16px;font-size:.88rem}
+.field-row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-bottom:18px;font-weight:500}
+
+.seg{display:inline-flex;flex-wrap:wrap;background:#F3EADF;border-radius:20px;padding:3px;gap:2px}
+.seg button{border:0;background:none;padding:6px 16px;border-radius:99px;cursor:pointer;color:var(--muted);font-weight:500}
+.seg button[aria-pressed=true]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(80,55,40,.2)}
+.seg .c{margin-left:6px;font-size:.8rem;color:var(--muted)}
+.list-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
+
+.alertbar{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center;margin-bottom:20px;padding:14px 16px;border:1px dashed #DCCDBB;border-radius:12px}
+.alertbar p{margin:0;flex:1 1 300px;color:var(--muted);font-size:.93rem}
+.alerts{position:fixed;top:calc(var(--bar) + 12px);left:50%;transform:translateX(-50%);z-index:60;width:min(520px,92vw);display:grid;gap:10px}
+.alert{display:flex;gap:14px;align-items:center;justify-content:space-between;background:var(--paper);border:1px solid var(--rouge);border-left:6px solid var(--rouge);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow)}
+.alert b{display:block;font-family:var(--serif);font-weight:600;font-size:1.25rem;line-height:1.2}
+.alert span{color:var(--muted);font-size:.93rem}
+
+/* ---------- lists ---------- */
+.rows,.tl{list-style:none;margin:0;padding:0}
+.rows li{display:grid;grid-template-columns:auto 1fr auto auto;gap:4px 14px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--line)}
+.rows.compact li{grid-template-columns:auto 1fr auto}
+.rows li:last-child,.tl li:last-child{border-bottom:0}
+.rows li.empty{display:block;color:var(--muted)}
+.t{font-weight:500}
+.done .t{color:var(--muted);text-decoration:line-through}
+.meta{font-size:.88rem;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.due{font-size:.9rem;color:var(--muted);white-space:nowrap}
+.due.late{color:var(--rouge-deep);font-weight:500}
+.check{appearance:none;-webkit-appearance:none;width:22px;height:22px;border:1.5px solid var(--forest);border-radius:50%;background:var(--paper);cursor:pointer;display:grid;place-content:center;margin:0}
+.check:checked{background:var(--forest)}
+.check:checked::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.x{width:34px;height:34px;border:0;background:none;border-radius:50%;color:var(--muted);cursor:pointer;font-size:1.3rem;line-height:1}
+.x:hover{background:#F3DDD6;color:var(--rouge-deep)}
+
+.tl li{display:grid;grid-template-columns:60px 1fr auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.tl li.past{opacity:.6}
+.tl li.empty{display:block;color:var(--muted)}
+.row-actions{display:flex;gap:8px;align-items:center}
+.dateblock{text-align:center;line-height:1}
+.dateblock b{display:block;font-family:var(--serif);font-weight:500;font-size:2.1rem;margin-bottom:4px;font-variant-numeric:lining-nums}
+.dateblock span{font-size:.85rem;color:var(--muted)}
+
+/* ---------- tables ---------- */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:.85rem;font-weight:500;color:var(--muted);padding:8px;border-bottom:1px solid #DCCDBB;white-space:nowrap}
+td{padding:12px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:hover{background:#FBF6EE}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+th.num{text-align:right}
+td .paid{width:110px;height:34px;padding:0 8px;border:1px solid #DCCDBB;border-radius:6px;text-align:right;background:var(--paper)}
+td select{height:34px;border:1px solid #DCCDBB;border-radius:99px;padding:0 10px;background:var(--paper)}
+td select.Confirmed{background:#E1EADC;border-color:#A9C0A1}
+td select.Pending{background:#F8EBCF;border-color:#E0C58F}
+td select.Declined{background:#F5DDD6;border-color:#DDA99D}
+.empty-cell{color:var(--muted);text-align:center;padding:26px 8px}
+.search{width:100%;max-width:340px;height:40px;padding:0 12px;border:1px solid #DCCDBB;border-radius:8px;background:var(--paper);margin:16px 0 8px}
+
+.budget-cats{display:grid;grid-template-columns:200px minmax(0,1fr);gap:28px;align-items:center}
+.donut{width:200px;height:200px}
+.donut text{font-family:var(--serif);font-weight:600}
+
+/* ---------- mood board ---------- */
+.palette{display:flex;flex-wrap:wrap;gap:26px}
+.swatch{display:grid;justify-items:center;gap:10px;width:116px}
+.swatch input[type=color]{-webkit-appearance:none;appearance:none;width:88px;height:88px;border:3px solid var(--paper);border-radius:50%;padding:0;cursor:pointer;background:none;box-shadow:0 0 0 1px var(--line),0 10px 18px -10px rgba(80,55,40,.5)}
+.swatch input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+.swatch input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
+.swatch input[type=color]::-moz-color-swatch{border:0;border-radius:50%}
+.sw-name{width:100%;text-align:center;border:0;border-bottom:1px solid var(--line);background:transparent;padding:4px;font-family:var(--serif);font-weight:600;font-size:1.1rem}
+
+.photo-bar{display:flex;flex-wrap:wrap;gap:12px 14px;align-items:center;margin:16px 0 22px}
+.photo-bar label{display:flex;align-items:center;gap:8px;font-weight:500}
+.cat-block+.cat-block{margin-top:32px}
+.cat-block h4{font-family:var(--serif);font-weight:600;font-size:1.15rem;letter-spacing:.16em;text-transform:uppercase;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.cat-block h4 .count{font-family:var(--body);font-size:.75rem;letter-spacing:0;padding:1px 8px;border-radius:99px;background:var(--blush)}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
+.tile{position:relative;margin:0}
+.tile-img{display:block;width:100%;aspect-ratio:4/5;padding:0;border:0;border-radius:10px;overflow:hidden;cursor:zoom-in;background:var(--track);box-shadow:var(--shadow)}
+.tile-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s}
+.tile-img:hover img{transform:scale(1.04)}
+.heart{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,254,251,.92);cursor:pointer;font-size:1.15rem;line-height:1;color:var(--rouge-deep)}
+.tile figcaption{font-family:var(--script);font-size:1.6rem;line-height:1.1;text-align:center;padding-top:6px;color:var(--ink)}
+.tile .badge{position:absolute;left:8px;bottom:8px;padding:2px 10px;border-radius:99px;background:rgba(255,254,251,.92);font-size:.78rem;font-weight:500;pointer-events:none}
+.tile.has-cap .badge{bottom:calc(1.6rem + 14px)}
+.empty-note{padding:18px 0}
+
+/* ---------- photo viewer ---------- */
+.lightbox{position:fixed;inset:0;z-index:100;background:rgba(24,17,14,.985);display:grid;grid-template-columns:64px minmax(0,1fr) 64px;grid-template-rows:minmax(0,1fr) auto;color:var(--ivory)}
+.lightbox[hidden]{display:none}
+.lb-stage{grid-column:2;grid-row:1;margin:0;display:grid;place-items:center;padding:60px 0 12px;min-height:0}
+.lb-stage img{max-width:100%;max-height:calc(100vh - 220px);max-height:calc(100dvh - 220px);object-fit:contain;border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lb-nav{grid-row:1;align-self:center;justify-self:center;width:48px;height:48px;border-radius:50%;border:1px solid rgba(251,243,228,.5);background:rgba(0,0,0,.3);color:var(--ivory);font-size:1.8rem;line-height:1;cursor:pointer}
+.lb-nav[hidden]{display:none}
+.lb-nav.prev{grid-column:1}
+.lb-nav.next{grid-column:3}
+.lb-nav:hover,.lb-btn:hover,.lb-close:hover{background:rgba(251,243,228,.18)}
+.lb-close{position:absolute;top:12px;right:16px;width:46px;height:46px;border-radius:50%;border:1px solid rgba(251,243,228,.5);background:rgba(0,0,0,.3);color:var(--ivory);font-size:1.6rem;line-height:1;cursor:pointer}
+.lb-bar{grid-column:1/-1;grid-row:2;display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center;padding:14px 20px 18px;background:rgba(0,0,0,.35)}
+.lb-bar #lbCount{color:#CBBFB4;font-size:.92rem;min-width:70px}
+.lb-bar input,.lb-bar select{height:40px;padding:0 12px;border-radius:8px;border:1px solid rgba(251,243,228,.4);background:rgba(251,243,228,.1);color:var(--ivory)}
+.lb-bar select option{color:#222}
+.lb-bar #lbCap{flex:1 1 220px;min-width:0;font-family:var(--script);font-size:1.5rem}
+.lb-bar input::placeholder{color:#B8A99B}
+.lb-btn{height:40px;padding:0 18px;border-radius:99px;border:1px solid rgba(251,243,228,.5);background:transparent;color:var(--ivory);cursor:pointer}
+.lb-btn.danger{border-color:#E7A99B;color:#F3C4B8}
+.lightbox :focus-visible{outline-color:#F0C987}
+
+.foot{max-width:1080px;margin:0 auto;padding:12px 20px 64px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}
+.foot p{flex-basis:100%;margin:8px 0 0;color:var(--muted);font-size:.9rem;text-align:center}
+
+@media (max-width:820px){
+  .cover{grid-template-columns:1fr;text-align:center}
+  .cover .tagline{margin-inline:auto}
+  .dots,.page-actions{justify-content:center}
+  .when{justify-content:center}
+  .arch-wrap{margin-top:14px}
+  .nav-in{justify-content:flex-start}
+  .glance,.pair{grid-template-columns:1fr}
+  .budget-cats{grid-template-columns:1fr;justify-items:center}
+  .budget-cats .legend{width:100%}
+  .rows li{grid-template-columns:auto 1fr auto}
+  .rows li .due{grid-column:2;grid-row:2}
+  .tl li{grid-template-columns:52px 1fr}
+  .tl li .row-actions{grid-column:2}
+  .sheet{padding:20px}
+  .gallery{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+  .lightbox{grid-template-columns:44px minmax(0,1fr) 44px}
+  .lb-nav{width:40px;height:40px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* ---------- sign-in gate ---------- */
+[hidden]{display:none!important}
+.gate{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:28px 16px}
+.gate-card{width:min(440px,100%);background:var(--paper);border:1px solid #F0E6D9;border-radius:10px;box-shadow:var(--shadow);padding:34px 30px 30px;text-align:center}
+.gate-arch{width:64px;height:84px;margin:0 auto 14px;border-radius:999px 999px 8px 8px;border:1px solid var(--ochre);display:grid;place-items:center;font-family:var(--script);font-size:2.6rem;line-height:1;color:var(--rouge-deep);padding-top:8px}
+.gate .script{font-size:clamp(3.6rem,16vw,5rem)}
+.gate .caps-title{font-size:clamp(1.15rem,5vw,1.5rem)}
+#gateBody{margin-top:22px;text-align:left}
+.gate h2{font-family:var(--serif);font-weight:600;font-size:1.35rem;margin-bottom:6px}
+.gate p{margin:0 0 14px;color:var(--muted)}
+.gate-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#F6EEE3;border-radius:99px;margin-bottom:20px}
+.gate-tabs button{height:38px;border:0;border-radius:99px;background:transparent;cursor:pointer;font-weight:500;color:var(--muted)}
+.gate-tabs button[aria-selected=true]{background:var(--forest);color:var(--ivory)}
+.gate form{display:grid;gap:14px}
+.gate label{display:grid;gap:6px;font-weight:500;font-size:.95rem}
+.gate .field{width:100%;height:46px}
+.gate .btn{width:100%;height:46px}
+.gate .msg{min-height:1.4em;margin:0;font-size:.95rem}
+.gate .msg.err{color:var(--rouge-deep)}
+.gate .msg.ok{color:var(--forest)}
+.gate .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;margin-top:6px}
+.gate .wait-note{padding:14px 16px;background:var(--ivory);border-radius:10px;border:1px solid var(--line);color:var(--ink)}
+.spin{width:22px;height:22px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--forest);margin:8px auto;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}}
+
+/* ---------- account strip ---------- */
+.acct{background:#16301F;color:#CFDDCF;font-size:.88rem}
+.acct-in{max-width:1080px;margin:0 auto;padding:4px 20px;display:flex;gap:4px 18px;flex-wrap:wrap;align-items:center;min-height:38px}
+.acct .grow{flex:1}
+.acct button{background:none;border:0;color:var(--ivory);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;min-height:32px}
+.acct :focus-visible{outline-color:#F0C987}
+.acct .n{display:inline-block;min-width:20px;padding:0 6px;border-radius:99px;background:#F0C987;color:var(--ink);font-size:.75rem;text-align:center;text-decoration:none}
+.sync{display:inline-flex;gap:8px;align-items:center}
+.sync i{width:9px;height:9px;border-radius:50%;background:#7BC48F}
+.sync[data-s=busy] i{background:#F0C987}
+.sync[data-s=off] i{background:#E08A78}
+
+/* ---------- people dialog ---------- */
+.modal{position:fixed;inset:0;z-index:80;background:rgba(24,17,14,.6);display:grid;place-items:center;padding:16px}
+.modal-card{width:min(560px,100%);max-height:88vh;overflow:auto;background:var(--paper);border-radius:10px;box-shadow:var(--shadow);padding:24px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.modal-head h2{font-family:var(--serif);font-weight:600;font-size:1.3rem;letter-spacing:.14em;text-transform:uppercase}
+.x{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:transparent;font-size:1.5rem;line-height:1;cursor:pointer}
+.person{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.person .who{flex:1 1 200px;min-width:0}
+.person .who b{display:block;font-weight:500;overflow-wrap:anywhere}
+.person .who span{color:var(--muted);font-size:.9rem;overflow-wrap:anywhere}
+.tag{display:inline-block;padding:1px 10px;border-radius:99px;font-size:.78rem;background:var(--sage-tint);color:var(--forest-deep);margin-left:6px}
+.tag.wait{background:#F6E3B8;color:var(--ochre-deep)}
+.tag.off{background:#F3D6CE;color:var(--rouge-deep)}
+.person .acts{display:flex;gap:8px;flex-wrap:wrap}
+
+
+/* ===== v2 look: silk and zari ===== */
+[hidden]{display:none!important}
+:root{--linen:#FBF3E4;--paper:#FFFDF8;--ink:#2B2220;--muted:#76665C;--line:#EBDCC0;--forest:#0F5B4A;--forest-deep:#083D32;--rouge:#B5295B;--rouge-deep:#8F1F47;--ochre:#C9A24B;--ochre-deep:#8A6A1F;--gold:#C9A24B;--gold2:#F1D98F;--sage-tint:#DDEBE3;--ivory:#FFF6E3;--track:#F0E4CC;
+--zari:repeating-linear-gradient(90deg,#C9A24B 0 10px,#F1D98F 10px 14px,#C9A24B 14px 24px,#8F1F47 24px 28px);--shadow:0 1px 0 rgba(201,162,75,.5),0 22px 44px -22px rgba(8,61,50,.35)}
+body{background-color:var(--linen);background-image:radial-gradient(1100px 480px at 90% -8%,rgba(181,41,91,.12),transparent 60%),radial-gradient(900px 480px at -10% 8%,rgba(15,91,74,.14),transparent 60%)}
+.acct{background:#052C24;color:var(--ivory)}.acct button{color:var(--gold2)}
+.pages{background:linear-gradient(180deg,#0B4A3C,#083D32)}.pages::after{content:"";display:block;height:5px;background:var(--zari)}
+.pill{border-color:rgba(241,217,143,.55);letter-spacing:.14em}
+.pill[aria-selected=true]{background:linear-gradient(135deg,#F7E6A8,#D9B25B);color:#3A2A08;border-color:#F1D98F;box-shadow:0 6px 16px -6px rgba(0,0,0,.5)}
+.script{background:linear-gradient(120deg,#8F1F47,#B5295B 45%,#C9A24B);-webkit-background-clip:text;background-clip:text;color:transparent}
+.caps-title{color:var(--forest-deep);letter-spacing:.2em}
+.arch{border:0;background:radial-gradient(circle at 50% 30%,#FFF6E3,#F7E3B5 70%);box-shadow:0 0 0 6px #fff7e6,0 0 0 8px var(--gold),0 0 0 14px #fff7e6,0 0 0 15px rgba(201,162,75,.6),0 30px 50px -24px rgba(8,61,50,.5)}
+.sheet{background:var(--paper);border:1px solid var(--line);border-top:3px solid var(--gold);border-radius:14px;box-shadow:var(--shadow)}
+.sheet.forest{background:linear-gradient(160deg,#0F5B4A,#083D32);color:var(--ivory);border-top-color:var(--gold2)}
+.nav{background:rgba(255,253,248,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.tab[aria-selected=true]{color:var(--rouge-deep);box-shadow:inset 0 -3px 0 var(--rouge)}
+.btn{background:linear-gradient(135deg,var(--rouge),var(--rouge-deep));color:#fff;border:0;border-radius:99px;box-shadow:0 8px 18px -8px rgba(143,31,71,.7)}
+.btn.quiet{background:transparent;color:var(--forest-deep);border:1px solid var(--gold);box-shadow:none}
+.script-h{color:var(--rouge-deep)}.foot{border-top:5px solid transparent;border-image:var(--zari) 1}
+@media(max-width:720px){.nav{position:fixed;left:0;right:0;bottom:0;z-index:40;border:0;border-top:2px solid var(--gold);padding-bottom:env(safe-area-inset-bottom)}.nav-in{overflow-x:auto;flex-wrap:nowrap}.tab{flex:none}.foot{padding-bottom:96px}.cover{grid-template-columns:1fr}.script{font-size:clamp(3.6rem,18vw,5rem)}}
+.lock{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 50% 0,#0F5B4A,#052C24 70%);color:var(--ivory)}
+.lock-card{width:min(340px,100%);text-align:center}.lock h2{font-family:var(--serif);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:1.2rem;margin:14px 0}
+.dots-pin{display:flex;gap:16px;justify-content:center;margin:10px 0}.dots-pin i{width:16px;height:16px;border-radius:50%;border:2px solid var(--gold2)}.dots-pin i.on{background:var(--gold2)}
+.lock-msg{min-height:1.5em;color:#F6B7C9;margin:6px 0}.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:10px auto;max-width:280px}
+.keys button{height:64px;border-radius:50%;border:1px solid rgba(241,217,143,.5);background:rgba(255,246,227,.08);color:var(--ivory);font:500 1.5rem var(--body)}.keys button:active{background:rgba(241,217,143,.3)}
+.lock .link{color:var(--gold2);margin:8px}.sec-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.act{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);list-style:none}.act p{margin:0}.act small{display:block}
+.av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--forest),var(--forest-deep));color:var(--gold2);font-weight:500}
+.imp-list{max-height:48vh;overflow:auto;padding:0;margin:10px 0}.imp-list li{list-style:none;padding:8px 0;border-bottom:1px solid var(--line)}.imp-list label{display:flex;gap:10px;align-items:flex-start}
+.imp-foot{display:flex;justify-content:flex-end;gap:10px}
+</style>
+</head>
+<body>
+
+<!-- sign-in gate: shown before anything else -->
+<main class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-arch" aria-hidden="true">H</div>
+    <h1><span class="script">Harini's</span><span class="caps-title">Wedding planner</span></h1>
+    <div id="gateBody" aria-live="polite"></div>
+  </div>
+</main>
+
+<div id="app" hidden>
+
+<div class="acct" id="acct">
+  <div class="acct-in">
+    <span class="sync" id="syncChip" data-s="idle"><i></i><span id="syncText">Saved</span></span>
+    <span class="grow"></span>
+    <span id="whoName"></span>
+    <button type="button" id="lockBtn">App lock</button>
+    <button type="button" id="peopleBtn" hidden>People <span class="n" id="pendingN" hidden>0</span></button>
+    <button type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div>
+
+<div class="pages">
+  <div class="pages-in" id="pagesBar" role="tablist" aria-label="Pages"></div>
+</div>
+
+<div class="alerts" id="alerts"></div>
+
+<header class="cover">
+  <div class="cover-text">
+    <h1><span class="script">Harini's</span><span class="caps-title" id="coverTitle">Wedding planner</span></h1>
+    <p class="tagline">Countdown, checklist, budget, guest list, events and mood board for this page.</p>
+    <label class="when"><span id="dateLabel">Wedding date</span> <input type="date" id="weddingDate"></label>
+    <div class="dots" id="coverDots" aria-label="Colours for this page"></div>
+    <div class="page-actions">
+      <button class="link" id="renameBtn" type="button">Rename page</button>
+      <button class="link" id="removeBtn" type="button">Remove page</button>
+    </div>
+  </div>
+  <div class="arch-wrap">
+    <div class="arch" aria-live="polite">
+      <div class="arch-in">
+        <b id="cdNum">–</b>
+        <span id="cdLabel">choose the date</span>
+        <small id="cdSub"></small>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="nav" role="tablist" aria-label="Sections">
+  <div class="nav-in">
+    <button class="tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button class="tab" role="tab" data-tab="tasks" aria-selected="false">Checklist <span class="n" id="nTasks">0</span></button>
+    <button class="tab" role="tab" data-tab="budget" aria-selected="false">Budget <span class="n" id="nBudget">0</span></button>
+    <button class="tab" role="tab" data-tab="guests" aria-selected="false">Guests <span class="n" id="nGuests">0</span></button>
+    <button class="tab" role="tab" data-tab="events" aria-selected="false">Events <span class="n" id="nEvents">0</span></button>
+    <button class="tab" role="tab" data-tab="mood" aria-selected="false">Mood board <span class="n" id="nMood">0</span></button>
+    <button class="tab" role="tab" data-tab="activity" aria-selected="false">Activity</button>
+  </div>
+</nav>
+
+<main class="page">
+
+  <!-- OVERVIEW -->
+  <section class="panel" id="tab-overview" role="tabpanel">
+    <div class="panel-head">
+      <span class="caps-sm">Harini's <span class="fn-name"></span></span>
+      <h2 class="script-h">at a glance</h2>
+      <p>Progress across the checklist, budget and guest list.</p>
+    </div>
+    <div class="glance">
+      <section class="sheet" id="ovTasks"></section>
+      <section class="sheet" id="ovBudget"></section>
+      <section class="sheet" id="ovGuests"></section>
+    </div>
+    <div class="pair">
+      <section class="sheet" id="ovNext"></section>
+      <section class="sheet forest" id="ovEvents"></section>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section class="panel" id="tab-tasks" role="tabpanel" hidden>
+    <div class="panel-head">
+      <span class="caps-sm fn-name"></span>
+      <h2 class="script-h">checklist</h2>
+      <p>Add the tasks you need and remove the ones you do not. Ordered by due date.</p>
+    </div>
+    <form class="add" id="taskForm">
+      <input class="grow" id="taskText" aria-label="Task" placeholder="Add a task, for example book the photographer" required>
+      <select id="taskCat" aria-label="Category"></select>
+      <input type="date" id="taskDue" aria-label="Due date">
+      <button class="btn">Add task</button>
+    </form>
+    <div class="sheet">
+      <div class="list-bar">
+        <div class="seg" role="group" aria-label="Filter tasks">
+          <button data-filter="all" aria-pressed="true">All</button>
+          <button data-filter="open" aria-pressed="false">To do</button>
+          <button data-filter="done" aria-pressed="false">Done</button>
+        </div>
+        <button class="btn quiet small" id="impBtn" type="button">Import list</button>
+        <input type="file" id="impFile" accept=".txt,.md,.csv,.docx,text/plain,text/csv" hidden>
+        <button class="btn quiet small" id="clearDone" type="button">Clear completed</button>
+      </div>
+      <ul class="rows" id="taskList"></ul>
+    </div>
+  </section>
+
+  <!-- BUDGET -->
+  <section class="panel" id="tab-budget" role="tabpanel" hidden>
+    <div class="panel-head">
+      <span class="caps-sm fn-name"></span>
+      <h2 class="script-h">budget</h2>
+      <p>Track what is planned, what is paid and what is still to pay.</p>
+    </div>
+    <form class="add" id="budgetForm">
+      <input class="grow" id="expName" aria-label="Expense" placeholder="Add an expense, for example hall advance" required>
+      <select id="expCat" aria-label="Category"></select>
+      <input type="number" id="expEst" min="0" aria-label="Estimated amount in rupees" placeholder="Estimated ₹" required>
+      <input type="number" id="expPaid" min="0" aria-label="Amount paid in rupees" placeholder="Paid ₹">
+      <button class="btn">Add expense</button>
+    </form>
+    <div class="sheet">
+      <label class="field-row">Total budget (₹)
+        <input class="field" type="number" id="totalBudget" min="0" step="1000" placeholder="For example 500000">
+      </label>
+      <div class="meter" id="budgetWeave"><i id="budgetBar"></i></div>
+      <p class="muted" id="budgetSummary"></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Expense</th><th class="num">Estimated</th><th class="num">Paid</th><th class="num">Left to pay</th>
+            <th><span class="visually-hidden">Remove</span></th>
+          </tr></thead>
+          <tbody id="budgetBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="sheet">
+      <h3>Spend by category</h3>
+      <div id="catBreakdown"></div>
+    </div>
+  </section>
+
+  <!-- GUESTS -->
+  <section class="panel" id="tab-guests" role="tabpanel" hidden>
+    <div class="panel-head">
+      <span class="caps-sm fn-name"></span>
+      <h2 class="script-h">guest list</h2>
+      <p>Keep the list, headcount and replies in one place.</p>
+    </div>
+    <form class="add" id="guestForm">
+      <input class="grow" id="guestName" aria-label="Guest name" placeholder="Add a guest or family name" required>
+      <select id="guestSide" aria-label="Side"><option>Bride side</option><option>Groom side</option><option>Friends</option></select>
+      <input type="number" id="guestCount" min="1" value="1" aria-label="Number of people">
+      <select id="guestRsvp" aria-label="Reply"><option>Pending</option><option>Confirmed</option><option>Declined</option></select>
+      <button class="btn">Add guest</button>
+    </form>
+    <div class="sheet">
+      <div id="guestSummary"></div>
+      <input class="search" id="guestSearch" type="search" aria-label="Search guests" placeholder="Search guests">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Name</th><th>Side</th><th class="num">People</th><th>Reply</th>
+            <th><span class="visually-hidden">Remove</span></th>
+          </tr></thead>
+          <tbody id="guestBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section class="panel" id="tab-events" role="tabpanel" hidden>
+    <div class="panel-head">
+      <span class="caps-sm fn-name"></span>
+      <h2 class="script-h">events</h2>
+      <p>Every ceremony and celebration. You get a reminder 1 hour before each one.</p>
+    </div>
+    <form class="add" id="eventForm">
+      <input class="grow" id="evName" aria-label="Event" placeholder="Add an event, for example mehendi or sangeet" required>
+      <input type="date" id="evDate" aria-label="Date" required>
+      <input type="time" id="evTime" aria-label="Time" required>
+      <input class="grow" id="evPlace" aria-label="Venue" placeholder="Venue">
+      <button class="btn">Add event</button>
+    </form>
+    <div class="alertbar">
+      <p id="alertStatus"></p>
+      <button class="btn quiet small" id="alertBtn" type="button">Turn on alerts</button>
+      <button class="btn quiet small" id="testAlert" type="button">Send a test alert</button>
+      <button class="btn quiet small" id="icsAll" type="button">Add all to calendar</button>
+    </div>
+    <div class="sheet">
+      <ul class="tl" id="eventList"></ul>
+    </div>
+  </section>
+
+  <!-- MOOD BOARD -->
+  <section class="panel" id="tab-mood" role="tabpanel" hidden>
+    <div class="panel-head">
+      <span class="caps-sm fn-name"></span>
+      <h2 class="script-h">mood board</h2>
+      <p>Pick your colours, then sort inspiration photos into decoration, dress and makeup.</p>
+    </div>
+    <div class="sheet">
+      <h3>The colours</h3>
+      <div class="palette" id="paletteRow"></div>
+    </div>
+    <div class="sheet" id="photoSheet">
+      <h3>Inspiration</h3>
+      <div class="seg" id="moodChips" role="group" aria-label="Show photos"></div>
+      <div class="photo-bar">
+        <label>Add to <select id="photoCat" class="field"></select></label>
+        <button class="btn" id="photoBtn" type="button">Add photos</button>
+        <input type="file" id="photoFile" accept="image/*" multiple hidden>
+        <span class="muted">Or drag photos here. Tap a photo to view it full size.</span>
+      </div>
+      <div id="photoGrid"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="tab-activity" role="tabpanel" hidden>
+    <div class="panel-head"><span class="caps-sm">Everyone's changes</span><h2 class="script-h">activity</h2><p>Who added, changed or removed what, and when.</p></div>
+    <div class="sheet">
+      <div class="seg" id="actSeg" role="group" aria-label="Show activity"><button data-af="page" aria-pressed="false">This page</button><button data-af="all" aria-pressed="true">All pages</button></div>
+      <ul class="rows" id="actList" style="padding:0"></ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <button class="btn quiet" id="exportBtn" type="button">Export backup</button>
+  <button class="btn quiet" id="importBtn" type="button">Import backup</button>
+  <input type="file" id="importFile" accept="application/json" hidden>
+  <p id="footNote">Everything is saved to the shared planner. Export a backup now and then.</p>
+</footer>
+
+<!-- photo viewer -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
+  <button class="lb-close" id="lbClose" type="button" aria-label="Close viewer">×</button>
+  <button class="lb-nav prev" id="lbPrev" type="button" aria-label="Previous photo">‹</button>
+  <figure class="lb-stage" id="lbStage"><img id="lbImg" alt=""></figure>
+  <button class="lb-nav next" id="lbNext" type="button" aria-label="Next photo">›</button>
+  <div class="lb-bar">
+    <span id="lbCount"></span>
+    <input id="lbCap" placeholder="Add a note" aria-label="Note for this photo" maxlength="80">
+    <select id="lbCat" aria-label="Category"></select>
+    <button class="lb-btn" id="lbFav" type="button" aria-pressed="false">♡ Favourite</button>
+    <button class="lb-btn danger" id="lbDel" type="button">Remove photo</button>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<div class="lock" id="lock" hidden role="dialog" aria-modal="true" aria-labelledby="lockTitle">
+  <div class="lock-card"><div class="gate-arch" aria-hidden="true">H</div>
+    <h2 id="lockTitle">Enter your PIN</h2>
+    <div class="dots-pin" id="pinDots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <p class="lock-msg" id="lockMsg" role="alert"></p>
+    <div class="keys" id="keys"></div>
+    <button class="link" id="lockCancel" type="button" hidden>Cancel</button>
+    <button class="link" id="lockForgot" type="button">Forgot PIN? Sign out</button>
+  </div>
+</div>
+<div class="modal" id="sec" hidden role="dialog" aria-modal="true" aria-labelledby="secTitle"><div class="modal-card">
+  <div class="modal-head"><h2 id="secTitle">App lock</h2><button type="button" class="x" id="secClose" aria-label="Close">×</button></div>
+  <p class="muted" id="secHint"></p><div class="sec-actions" id="secActions"></div>
+  <label class="field-row" id="secAfterRow">Lock after <select id="secAfter" class="field"><option value="0">As soon as I leave the app</option><option value="1">1 minute away</option><option value="5">5 minutes away</option><option value="-1">Only when I reopen the app</option></select></label>
+</div></div>
+<div class="modal" id="imp" hidden role="dialog" aria-modal="true" aria-labelledby="impTitle"><div class="modal-card">
+  <div class="modal-head"><h2 id="impTitle">Import tasks</h2><button type="button" class="x" id="impClose" aria-label="Close">×</button></div>
+  <p class="muted" id="impHint"></p><ul class="imp-list" id="impList"></ul>
+  <div class="imp-foot"><button class="btn quiet" id="impCancel" type="button">Cancel</button><button class="btn" id="impAdd" type="button">Add tasks</button></div>
+</div></div>
+
+<!-- people and approvals (owner only) -->
+<div class="modal" id="people" role="dialog" aria-modal="true" aria-labelledby="peopleTitle" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="peopleTitle">People</h2>
+      <button type="button" class="x" id="peopleClose" aria-label="Close">×</button>
+    </div>
+    <p class="muted" id="peopleHint">Approved people can view and edit everything. New sign-ups wait here until you approve them.</p>
+    <div id="peopleList"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+// Talks to Supabase over plain web requests: sign-in, the shared tables and photo storage.
+// No outside library is needed, so the app still loads offline.
+(() => {
+  const cfg = window.PLANNER_CONFIG || {};
+  const base = String(cfg.url || "").trim().replace(/\/+$/, "");
+  const key = String(cfg.anonKey || "").trim();
+  const configured = /^(https:\/\/|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?)/.test(base) && key.length > 20;
+
+  const AUTH = "harini-auth";
+  let session = null;
+  try { session = JSON.parse(localStorage.getItem(AUTH)); } catch {}
+  const store = (s) => {
+    session = s;
+    try { s ? localStorage.setItem(AUTH, JSON.stringify(s)) : localStorage.removeItem(AUTH); } catch {}
+  };
+  const now = () => Math.floor(Date.now() / 1000);
+
+  function toSession(r) {
+    const u = r.user || {};
+    return {
+      access_token: r.access_token,
+      refresh_token: r.refresh_token,
+      expires_at: r.expires_at || now() + (r.expires_in || 3600),
+      user: { id: u.id, email: u.email, name: (u.user_metadata && u.user_metadata.display_name) || "" },
+    };
+  }
+
+  const fail = (res, data) => {
+    const msg = (data && (data.msg || data.error_description || data.message || data.error)) || `Request failed (${res.status})`;
+    const e = new Error(msg); e.status = res.status; e.code = data && (data.code || data.error_code); return e;
+  };
+
+  async function send(path, o) {
+    const h = { apikey: key, ...(o.headers || {}) };
+    h.Authorization = "Bearer " + (o.auth !== false && session ? session.access_token : (o.token || key));
+    let body = o.body;
+    if (body !== undefined && !(body instanceof Blob)) { h["Content-Type"] = "application/json"; body = JSON.stringify(body); }
+    let res;
+    try { res = await fetch(base + path, { method: o.method || "GET", headers: h, body }); }
+    catch { const e = new Error("You are offline"); e.offline = true; throw e; }
+    return res;
+  }
+
+  let refreshing = null;
+  function refresh() {
+    if (!session) return Promise.resolve(false);
+    if (!refreshing) {
+      const rt = session.refresh_token;
+      refreshing = (async () => {
+        try {
+          const res = await send("/auth/v1/token?grant_type=refresh_token", { method: "POST", auth: false, body: { refresh_token: rt } });
+          const data = await res.json().catch(() => ({}));
+          if (res.ok && data.access_token) { store(toSession({ ...data, user: data.user || session.user })); return true; }
+          if (res.status >= 400 && res.status < 500) { store(null); window.dispatchEvent(new Event("cloud-signedout")); }
+          return false;
+        } catch { return false; }
+        finally { refreshing = null; }
+      })();
+    }
+    return refreshing;
+  }
+
+  async function req(path, o = {}) {
+    if (o.auth !== false && session && session.expires_at - 60 < now()) await refresh();
+    let res = await send(path, o);
+    if (res.status === 401 && o.auth !== false && session && (await refresh())) res = await send(path, o);
+    if (o.raw) { if (!res.ok) throw fail(res, null); return res; }
+    const text = await res.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch { data = null; }
+    if (!res.ok) throw fail(res, data);
+    return data;
+  }
+
+  // ---------- accounts ----------
+  const signUp = async (email, password, name) => {
+    const d = await req("/auth/v1/signup", { method: "POST", auth: false, body: { email, password, data: { display_name: name } } });
+    if (d && d.access_token) { store(toSession(d)); return { signedIn: true }; }
+    return { signedIn: false };
+  };
+  const signIn = async (email, password) => {
+    const d = await req("/auth/v1/token?grant_type=password", { method: "POST", auth: false, body: { email, password } });
+    store(toSession(d));
+  };
+  const signOut = async () => {
+    try { await req("/auth/v1/logout", { method: "POST" }); } catch {}
+    store(null);
+  };
+  const recover = (email) => req("/auth/v1/recover", { method: "POST", auth: false, body: { email } });
+  const updatePassword = (password) => req("/auth/v1/user", { method: "PUT", body: { password } });
+
+  // the link in a password-reset email opens the app with the sign-in details in the address
+  async function takeLink() {
+    const h = new URLSearchParams(location.hash.replace(/^#/, ""));
+    const at = h.get("access_token");
+    if (!at) return null;
+    const type = h.get("type") || "";
+    try { history.replaceState(null, "", location.pathname + location.search); } catch {}
+    try {
+      const u = await req("/auth/v1/user", { auth: false, token: at });
+      store(toSession({ access_token: at, refresh_token: h.get("refresh_token") || "", expires_in: +h.get("expires_in") || 3600, user: u }));
+      return type;
+    } catch { return null; }
+  }
+
+  // ---------- people ----------
+  const getProfile = async () => {
+    const r = await req(`/rest/v1/profiles?id=eq.${encodeURIComponent(session.user.id)}&select=*`);
+    return (r && r[0]) || null;
+  };
+  const listProfiles = () => req("/rest/v1/profiles?select=*&order=created_at.asc");
+  const setProfile = (id, patch) =>
+    req(`/rest/v1/profiles?id=eq.${encodeURIComponent(id)}`, { method: "PATCH", headers: { Prefer: "return=representation" }, body: patch });
+
+  // ---------- shared planner data ----------
+  async function fetchAll(table) {
+    const out = [];
+    for (let from = 0; ; from += 1000) {
+      const rows = await req(`/rest/v1/${table}?select=*&order=id.asc&limit=1000&offset=${from}`);
+      out.push(...rows);
+      if (rows.length < 1000) break;
+    }
+    return out;
+  }
+  async function upsert(table, rows) {
+    for (let i = 0; i < rows.length; i += 200) {
+      await req(`/rest/v1/${table}?on_conflict=id`, {
+        method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: rows.slice(i, i + 200),
+      });
+    }
+  }
+  async function remove(table, ids) {
+    for (let i = 0; i < ids.length; i += 40) {
+      const list = ids.slice(i, i + 40).map((x) => encodeURIComponent(x)).join(",");
+      await req(`/rest/v1/${table}?id=in.(${list})`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+    }
+  }
+
+  // ---------- photos ----------
+  const uploadPhoto = (id, blob) =>
+    req(`/storage/v1/object/photos/${encodeURIComponent(id)}.jpg`, { method: "POST", headers: { "Content-Type": blob.type || "image/jpeg", "x-upsert": "true" }, body: blob });
+  const downloadPhoto = async (id) => (await req(`/storage/v1/object/authenticated/photos/${encodeURIComponent(id)}.jpg`, { raw: true })).blob();
+  const deletePhotos = (ids) =>
+    req("/storage/v1/object/photos", { method: "DELETE", body: { prefixes: ids.map((i) => i + ".jpg") } });
+
+  const fetchActivity = () => req("/rest/v1/activity?select=*&order=at.desc&limit=150");
+  window.Cloud = {
+    configured, fetchActivity, signUp, signIn, signOut, recover, updatePassword, takeLink, refresh,
+    getProfile, listProfiles, setProfile, fetchAll, upsert, remove, uploadPhoto, downloadPhoto, deletePhotos,
+    get session() { return session; },
+  };
+})();
+
+</script>
+<script>
+(() => {
+  const KEY = "harini-wedding-v3";
+  const LEGACY_KEY = "harini-wedding-v2";
+  const HOUR = 36e5;
+  const $ = (id) => document.getElementById(id);
+  const uid = () => Math.random().toString(36).slice(2, 10);
+  const esc = (s) =>
+    String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  const CATS = [
+    ["Venue", "#2E5B3B"], ["Catering", "#C58A3C"], ["Attire", "#B8604F"],
+    ["Decor", "#8E7CA8"], ["Photography", "#5F8FA3"], ["Invitations", "#D9A38A"],
+    ["Rituals", "#7A8F4B"], ["Travel", "#7B5A44"], ["Other", "#A8A096"],
+  ];
+  const CAT_NAMES = CATS.map(([c]) => c);
+  const catColor = Object.fromEntries(CATS);
+  const colorOf = (c) => catColor[c] || "#A8A096";
+  const PHOTO_CATS = ["Decoration", "Dress", "Makeup"];
+  const HEX = /^#[0-9a-f]{6}$/i;
+  const DATA_RE = /^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+
+  // ---------- formatting ----------
+  const pad = (n) => String(n).padStart(2, "0");
+  const inr = (n) => "₹" + (Number(n) || 0).toLocaleString("en-IN");
+  const short = (n) => {
+    n = +n || 0;
+    if (n >= 1e7) return "₹" + (n / 1e7).toFixed(2).replace(/\.?0+$/, "") + " Cr";
+    if (n >= 1e5) return "₹" + (n / 1e5).toFixed(1).replace(/\.0$/, "") + " L";
+    return inr(n);
+  };
+  const parse = (d) => new Date(d + "T00:00:00");
+  const fmt = (d, o) => parse(d).toLocaleDateString("en-IN", o || { day: "numeric", month: "short" });
+  const fmtTime = (t) => {
+    const [h, m] = t.split(":").map(Number);
+    return `${((h + 11) % 12) + 1}:${pad(m)} ${h < 12 ? "am" : "pm"}`;
+  };
+  const todayStr = () => {
+    const n = new Date();
+    return `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`;
+  };
+  const daysTo = (d) => Math.round((parse(d) - parse(todayStr())) / 864e5);
+  const byDue = (a, b) => (a.due || "9999").localeCompare(b.due || "9999");
+  const sumPeople = (arr) => arr.reduce((s, g) => s + (+g.count || 0), 0);
+  const startOf = (e) => (e.date && e.time ? new Date(`${e.date}T${e.time}:00`) : null);
+
+  // ---------- default content for each page ----------
+  const FN_DEFAULTS = {
+    engagement: {
+      name: "Engagement",
+      palette: [["Blush", "#E9BFB1"], ["Sage", "#9DB39A"], ["Ivory", "#F2E8D5"], ["Gold", "#C9A24B"]],
+      tasks: [
+        ["Fix the engagement date and time", "Rituals"], ["Book the hall", "Venue"],
+        ["Choose engagement outfits", "Attire"], ["Arrange rings and exchange items", "Rituals"],
+        ["Book the photographer", "Photography"], ["Finalize catering and menu", "Catering"],
+        ["Plan return gifts", "Other"], ["Invite family and friends", "Invitations"],
+      ],
+    },
+    reception: {
+      name: "Reception",
+      palette: [["Wine", "#6E1E3A"], ["Rose gold", "#C9897A"], ["Ivory", "#F2E8D5"], ["Gold", "#C58A3C"]],
+      tasks: [
+        ["Book the reception hall", "Venue"], ["Plan the stage and decor", "Decor"],
+        ["Finalize catering and menu", "Catering"], ["Book DJ or live band", "Other"],
+        ["Book photographer and videographer", "Photography"], ["Choose reception outfits", "Attire"],
+        ["Book makeup artist and hair trial", "Attire"], ["Send invitations", "Invitations"],
+      ],
+    },
+    wedding: {
+      name: "Wedding",
+      palette: [["Rouge", "#B8604F"], ["Sand", "#E2B99A"], ["Forest", "#2E5B3B"], ["Ochre", "#C58A3C"]],
+      tasks: [
+        ["Fix the wedding date and muhurtham", "Rituals"], ["Book the venue", "Venue"],
+        ["Arrange the priest and ritual items", "Rituals"], ["Finalize caterer and menu", "Catering"],
+        ["Book photographer and videographer", "Photography"], ["Shop for wedding silks and jewellery", "Attire"],
+        ["Print and send invitations", "Invitations"], ["Plan guest accommodation and travel", "Travel"],
+        ["Book makeup artist", "Attire"],
+      ],
+    },
+    custom: {
+      name: "New page",
+      palette: [["Rouge", "#B8604F"], ["Sand", "#E2B99A"], ["Forest", "#2E5B3B"], ["Ochre", "#C58A3C"]],
+      tasks: [
+        ["Fix the date and venue", "Venue"], ["Make the guest list", "Invitations"],
+        ["Choose outfits", "Attire"], ["Plan the decor", "Decor"],
+      ],
+    },
+  };
+
+  function blankFn(id, name) {
+    const d = FN_DEFAULTS[id] || FN_DEFAULTS.custom;
+    return {
+      id, name: name || d.name, date: "", totalBudget: 0,
+      tasks: d.tasks.map(([text, cat], i) => ({ id: FN_DEFAULTS[id] ? `${id}-t${i}` : uid(), text, cat, due: "", done: false })),
+      expenses: [], guests: [], events: [],
+      palette: d.palette.map(([name, hex]) => ({ name, hex })),
+      photos: [],
+    };
+  }
+  const freshState = () => ({ v: 2, current: "engagement", functions: ["engagement", "reception", "wedding"].map((k) => blankFn(k)) });
+
+  // ---------- make loaded or imported data safe to render ----------
+  const arr = (x) => (Array.isArray(x) ? x : []);
+  const str = (x, n) => String(x ?? "").slice(0, n);
+  const dateOk = (x) => (/^\d{4}-\d{2}-\d{2}$/.test(x) ? x : "");
+  const timeOk = (x) => (/^\d{2}:\d{2}$/.test(x) ? x : "");
+  const cleanId = (x) => String(x || "").replace(/[^a-z0-9_-]/gi, "").slice(0, 40) || uid();
+  const catOk = (c) => (CAT_NAMES.includes(c) ? c : "Other");
+
+  function cleanFn(f, imp) {
+    f = f && typeof f === "object" ? f : {};
+    const base = blankFn(cleanId(f.id), str(f.name, 30).trim() || "Page");
+    const palette = arr(f.palette).slice(0, 6).map((p, i) => ({
+      name: str(p && p.name, 24),
+      hex: p && HEX.test(p.hex) ? p.hex : base.palette[i % base.palette.length].hex,
+    }));
+    return {
+      id: base.id, name: base.name,
+      date: dateOk(f.date), totalBudget: Math.max(0, +f.totalBudget || 0),
+      tasks: arr(f.tasks).map((t) => ({ id: cleanId(t && t.id), text: str(t && t.text, 120), cat: catOk(t && t.cat), due: dateOk(t && t.due), done: !!(t && t.done) })).filter((t) => t.text),
+      expenses: arr(f.expenses).map((e) => ({ id: cleanId(e && e.id), name: str(e && e.name, 120), cat: catOk(e && e.cat), est: Math.max(0, +(e && e.est) || 0), paid: Math.max(0, +(e && e.paid) || 0) })).filter((e) => e.name),
+      guests: arr(f.guests).map((g) => ({
+        id: cleanId(g && g.id), name: str(g && g.name, 120),
+        side: ["Bride side", "Groom side", "Friends"].includes(g && g.side) ? g.side : "Friends",
+        count: Math.max(1, Math.round(+(g && g.count) || 1)),
+        rsvp: ["Pending", "Confirmed", "Declined"].includes(g && g.rsvp) ? g.rsvp : "Pending",
+      })).filter((g) => g.name),
+      events: arr(f.events).map((e) => ({ id: cleanId(e && e.id), name: str(e && e.name, 120), date: dateOk(e && e.date), time: timeOk(e && e.time), place: str(e && e.place, 120), reminded: !!(e && e.reminded) })).filter((e) => e.name && e.date),
+      palette: palette.length ? palette : base.palette,
+      photos: arr(f.photos).map((p) => {
+        const o = { id: cleanId(p && p.id), cat: PHOTO_CATS.includes(p && p.cat) ? p.cat : "Decoration", cap: str(p && p.cap, 80), fav: !!(p && p.fav) };
+        if (imp) o.src = p && typeof p.src === "string" && DATA_RE.test(p.src) ? p.src : "";
+        return o;
+      }).filter((o) => (imp ? o.src : true)),
+    };
+  }
+  function sanitize(s, imp) {
+    const fns = arr(s && s.functions).map((f) => cleanFn(f, imp));
+    const seen = new Set();
+    fns.forEach((f) => { while (seen.has(f.id)) f.id = uid(); seen.add(f.id); });
+    if (!fns.length) return freshState();
+    return { v: 2, current: fns.some((f) => f.id === (s && s.current)) ? s.current : fns[0].id, functions: fns };
+  }
+
+  let state = freshState();
+  function loadLocal(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) { state = sanitize(JSON.parse(raw), false); return true; }
+    } catch {}
+    return false;
+  }
+  const F = () => state.functions.find((f) => f.id === state.current) || state.functions[0];
+  const saveLocal = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); return true; } catch { return false; } };
+  const save = () => { const ok = saveLocal(); kick(); return ok; };
+
+  let taskFilter = "all";
+  let moodFilter = "All";
+  let baseTitle = document.title;
+
+  // ---------- photo storage (IndexedDB) ----------
+  let dbp = null;
+  function openDB() {
+    if (!dbp) {
+      dbp = new Promise((res, rej) => {
+        if (!window.indexedDB) return rej(new Error("IndexedDB unavailable"));
+        const r = indexedDB.open("harini-planner", 1);
+        r.onupgradeneeded = () => r.result.createObjectStore("photos");
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      }).catch((e) => { dbp = null; throw e; });
+    }
+    return dbp;
+  }
+  const idb = (mode, fn) => openDB().then((db) => new Promise((res, rej) => {
+    const tx = db.transaction("photos", mode);
+    const rq = fn(tx.objectStore("photos"));
+    tx.oncomplete = () => res(rq && rq.result);
+    tx.onerror = () => rej(tx.error);
+    tx.onabort = () => rej(tx.error);
+  }));
+  const idbPut = (k, b) => idb("readwrite", (s) => s.put(b, k));
+  const idbGet = (k) => idb("readonly", (s) => s.get(k));
+  const idbDel = (k) => idb("readwrite", (s) => s.delete(k));
+
+  const urlCache = new Map();
+  const tried = new Set();
+  let hydrating = false;
+  async function hydrate() {
+    if (hydrating) return;
+    const missing = F().photos.filter((p) => !urlCache.has(p.id) && !tried.has(p.id));
+    if (!missing.length) return;
+    hydrating = true;
+    for (const p of missing) {
+      tried.add(p.id);
+      try {
+        let b = await idbGet(p.id);
+        if (!b && S.uploaded.has(p.id)) {
+          try { b = await Cloud.downloadPhoto(p.id); if (b) await idbPut(p.id, b); } catch {}
+        }
+        if (b) urlCache.set(p.id, URL.createObjectURL(b));
+      } catch {}
+    }
+    hydrating = false;
+    renderMood();
+    hydrate();
+  }
+  function dropPhotoData(id) {
+    idbDel(id).catch(() => {});
+    const u = urlCache.get(id);
+    if (u) URL.revokeObjectURL(u);
+    urlCache.delete(id); tried.delete(id);
+    if (S.uploaded.has(id)) { S.uploaded.delete(id); S.trash.add(id); persistSync(); }
+  }
+
+  function shrink(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const s = Math.min(1, 1600 / Math.max(img.width, img.height));
+        const c = document.createElement("canvas");
+        c.width = Math.max(1, Math.round(img.width * s)); c.height = Math.max(1, Math.round(img.height * s));
+        const ctx = c.getContext("2d");
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob((b) => (b ? resolve(b) : reject(new Error("encode"))), "image/jpeg", 0.85);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("decode")); };
+      img.src = url;
+    });
+  }
+  const blobToDataURL = (b) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(b); });
+  function dataURLToBlob(u) {
+    const [h, b] = u.split(",");
+    const mime = (h.match(/data:([^;]+)/) || [])[1] || "image/jpeg";
+    const bin = atob(b); const a = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+    return new Blob([a], { type: mime });
+  }
+
+  // ---------- countdown ----------
+  function tick() {
+    const f = F(), lower = f.name.toLowerCase();
+    const num = $("cdNum"), label = $("cdLabel"), sub = $("cdSub");
+    const set = (n, l, s) => {
+      num.textContent = n; label.textContent = l; sub.textContent = s || "";
+      num.classList.toggle("word", !/^\d+$/.test(String(n)));
+    };
+    const today = todayStr();
+    if (!f.date) return set("–", `choose the ${lower} date`);
+    if (f.date === today) return set("Today", `is the ${lower}`);
+    if (f.date < today) return set("Done", `${lower} was on ${fmt(f.date, { day: "numeric", month: "short", year: "numeric" })}`);
+    const diff = parse(f.date) - new Date();
+    const d = Math.floor(diff / 864e5);
+    const hr = Math.floor((diff % 864e5) / 36e5);
+    const mn = Math.floor((diff % 36e5) / 6e4);
+    if (d === 0) return set("Tomorrow", `is the ${lower}`, `${hr} hr ${mn} min to go`);
+    set(String(d), d === 1 ? "day to go" : "days to go", `plus ${hr} hr ${mn} min`);
+  }
+
+  // ---------- reminders (1 hour before each event) ----------
+  let swReg = null;
+  const alerts = [];
+  function updateTitle() { document.title = (alerts.length ? "⏰ " : "") + baseTitle; }
+  function renderAlerts() {
+    $("alerts").innerHTML = alerts.map((a) => `
+      <div class="alert" role="alert">
+        <div><b>${esc(a.title)}</b><span>${esc(a.body)}</span></div>
+        <button class="btn quiet small" type="button" data-dismiss="${esc(a.id)}">Dismiss</button>
+      </div>`).join("");
+    updateTitle();
+  }
+  function notify(title, body) {
+    alerts.push({ id: uid(), title, body });
+    renderAlerts();
+    try {
+      if (window.Notification && Notification.permission === "granted") {
+        // installed apps on Android need the service worker to show notifications
+        if (swReg && swReg.showNotification) swReg.showNotification(title, { body, icon: "icon-192.png", badge: "icon-192.png" });
+        else new Notification(title, { body });
+      }
+    } catch {}
+    try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch {}
+  }
+  function checkReminders() {
+    const now = Date.now();
+    let changed = false;
+    state.functions.forEach((fn) => fn.events.forEach((e) => {
+      const s = startOf(e);
+      if (!s || e.reminded) return;
+      const t = s.getTime();
+      if (now >= t - HOUR && now < t) {
+        e.reminded = true; changed = true;
+        const mins = Math.max(1, Math.round((t - now) / 6e4));
+        const when = mins >= 59 ? "1 hour" : `${mins} minutes`;
+        notify(`${e.name} starts in ${when}`, `${fmtTime(e.time)}${e.place ? ", " + e.place : ""} (${fn.name})`);
+      }
+    }));
+    if (changed) save();
+  }
+  function renderAlertStatus() {
+    const supported = "Notification" in window;
+    const perm = supported ? Notification.permission : "unsupported";
+    const msg = {
+      unsupported: "This browser cannot show pop-up alerts. You will still see a reminder banner on this page.",
+      default: "Pop-up alerts are off. Turn them on to get a notification 1 hour before each event.",
+      granted: "Pop-up alerts are on. You get a notification 1 hour before each event.",
+      denied: "Pop-up alerts are blocked in your browser settings. You will still see a reminder banner on this page.",
+    }[perm];
+    $("alertStatus").textContent = msg + " Reminders only appear while this page is open. For alerts when the page is closed, add events to your calendar.";
+    $("alertBtn").hidden = perm !== "default";
+  }
+
+  // ---------- calendar file with a 1 hour alarm ----------
+  const icsDT = (d) => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  const icsEsc = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+  function icsEvent(fn, e) {
+    const s = startOf(e);
+    const end = new Date(s.getTime() + 2 * HOUR);
+    const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+    return [
+      "BEGIN:VEVENT", `UID:${e.id}@harini-wedding-planner`, `DTSTAMP:${stamp}`,
+      `DTSTART:${icsDT(s)}`, `DTEND:${icsDT(end)}`,
+      `SUMMARY:${icsEsc(`${e.name} (${fn.name})`)}`,
+      e.place ? `LOCATION:${icsEsc(e.place)}` : null,
+      "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", `DESCRIPTION:${icsEsc(e.name + " starts in 1 hour")}`, "END:VALARM",
+      "END:VEVENT",
+    ].filter(Boolean);
+  }
+  function downloadFile(name, blob) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  function downloadICS(fn, list, name) {
+    const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Harini Wedding Planner//EN", "CALSCALE:GREGORIAN", ...list.flatMap((e) => icsEvent(fn, e)), "END:VCALENDAR"];
+    downloadFile(name, new Blob([lines.join("\r\n") + "\r\n"], { type: "text/calendar" }));
+  }
+
+  // ---------- shared builders ----------
+  const dueHtml = (t) => {
+    if (!t.due) return "<span></span>";
+    const late = !t.done && t.due < todayStr();
+    return `<span class="due${late ? " late" : ""}">${late ? "Overdue, " : "Due "}${esc(fmt(t.due))}</span>`;
+  };
+
+  const taskRow = (t, removable) => `
+    <li class="${t.done ? "done" : ""}">
+      <input class="check" type="checkbox" data-toggle="${esc(t.id)}" ${t.done ? "checked" : ""} aria-label="Mark ${esc(t.text)} as done">
+      <div><div class="t">${esc(t.text)}</div><div class="meta"><i class="dot" style="--c:${colorOf(t.cat)}"></i>${esc(t.cat)}</div></div>
+      ${dueHtml(t)}
+      ${removable ? `<button class="x" data-del="tasks:${esc(t.id)}" aria-label="Remove ${esc(t.text)}">×</button>` : ""}
+    </li>`;
+
+  const remindText = (e) => {
+    const s = startOf(e);
+    if (!s) return "No time set, so no reminder";
+    const r = new Date(s.getTime() - HOUR);
+    const day = r.toDateString() !== s.toDateString() ? " the day before" : "";
+    return `Reminder at ${fmtTime(`${pad(r.getHours())}:${pad(r.getMinutes())}`)}${day}, 1 hour before`;
+  };
+
+  const eventRow = (e, removable) => {
+    const d = parse(e.date);
+    const meta = [d.toLocaleDateString("en-IN", { weekday: "long" }), e.time ? fmtTime(e.time) : "", e.place].filter(Boolean).map(esc).join(", ");
+    return `
+    <li class="${e.date < todayStr() ? "past" : ""}">
+      <div class="dateblock"><b>${d.getDate()}</b><span>${esc(d.toLocaleDateString("en-IN", { month: "short" }))}</span></div>
+      <div><div class="t">${esc(e.name)}</div><div class="meta">${meta}</div>${removable ? `<div class="meta">${esc(remindText(e))}</div>` : ""}</div>
+      ${removable ? `<div class="row-actions">
+        ${startOf(e) ? `<button class="btn quiet small" type="button" data-ics="${esc(e.id)}">Add to calendar</button>` : ""}
+        <button class="x" data-del="events:${esc(e.id)}" aria-label="Remove ${esc(e.name)}">×</button>
+      </div>` : ""}
+    </li>`;
+  };
+
+  const ring = (pct) => {
+    const C = 2 * Math.PI * 45;
+    return `<svg class="ring" viewBox="0 0 110 110" role="img" aria-label="${pct}% of tasks done">
+      <circle cx="55" cy="55" r="45" fill="none" stroke="var(--track)" stroke-width="9"/>
+      ${pct > 0 ? `<circle cx="55" cy="55" r="45" fill="none" stroke="var(--forest)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${((pct / 100) * C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 55 55)"/>` : ""}
+      <text x="55" y="63" text-anchor="middle" class="ring-t">${pct}%</text>
+    </svg>`;
+  };
+
+  const donut = (by, total) => {
+    const R = 15.9155;
+    let off = 25;
+    const segs = Object.entries(by).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([k, v]) => {
+      const p = (v / total) * 100;
+      const len = Math.max(p - 0.6, 0.1);
+      const s = `<circle r="${R}" cx="21" cy="21" fill="none" stroke="${colorOf(k)}" stroke-width="5.5" stroke-dasharray="${len.toFixed(3)} ${(100 - len).toFixed(3)}" stroke-dashoffset="${off.toFixed(3)}"/>`;
+      off -= p;
+      return s;
+    });
+    return `<svg viewBox="0 0 42 42" class="donut" role="img" aria-label="Estimated spend by category">
+      ${segs.join("")}
+      <text x="21" y="21.5" text-anchor="middle" font-size="4.6" fill="var(--ink)">${esc(short(total))}</text>
+      <text x="21" y="26" text-anchor="middle" font-size="2.4" fill="var(--muted)" style="font-family:var(--body);font-weight:400">planned</text>
+    </svg>`;
+  };
+
+  const guestStack = () => {
+    const g0 = F().guests;
+    const c = sumPeople(g0.filter((g) => g.rsvp === "Confirmed"));
+    const p = sumPeople(g0.filter((g) => g.rsvp === "Pending"));
+    const d = sumPeople(g0.filter((g) => g.rsvp === "Declined"));
+    const t = c + p + d;
+    if (!t) return { c, p, d, t, html: `<p class="muted">No guests yet. Add the first one in the Guests tab.</p>` };
+    const seg = (n, color) => (n ? `<i style="flex:${n};background:${color}"></i>` : "");
+    return {
+      c, p, d, t,
+      html: `<div class="stack" role="img" aria-label="${c} confirmed, ${p} pending, ${d} declined">${seg(c, "var(--forest)")}${seg(p, "var(--ochre)")}${seg(d, "var(--rouge)")}</div>
+        <ul class="legend">
+          <li><i class="dot" style="--c:var(--forest)"></i>Confirmed<span class="v">${c}</span></li>
+          <li><i class="dot" style="--c:var(--ochre)"></i>Pending<span class="v">${p}</span></li>
+          <li><i class="dot" style="--c:var(--rouge)"></i>Declined<span class="v">${d}</span></li>
+        </ul>`,
+    };
+  };
+
+  const budgetTotals = () => {
+    const f = F();
+    const planned = f.expenses.reduce((s, e) => s + (+e.est || 0), 0);
+    const paid = f.expenses.reduce((s, e) => s + (+e.paid || 0), 0);
+    const cap = +f.totalBudget || 0;
+    const base = cap || planned || 1;
+    return { planned, paid, cap, pct: Math.min(100, Math.round((planned / base) * 100)), over: cap && planned > cap };
+  };
+
+  // ---------- page switcher and cover ----------
+  function renderPages() {
+    $("pagesBar").innerHTML = state.functions.map((f) => {
+      const d = f.date ? daysTo(f.date) : null;
+      const badge = d !== null && d >= 0 ? `<span class="n" title="${d === 0 ? "Today" : d + " days to go"}">${d === 0 ? "Today" : d + "d"}</span>` : "";
+      return `<button class="pill" role="tab" data-page="${esc(f.id)}" aria-selected="${f.id === state.current}">${esc(f.name)}${badge}</button>`;
+    }).join("") + `<button class="pill pill-add" id="addPage" type="button">+ Add page</button>`;
+  }
+
+  function renderCover() {
+    const f = F();
+    $("coverTitle").textContent = f.name + " planner";
+    $("dateLabel").textContent = f.name + " date";
+    $("weddingDate").value = f.date;
+    $("coverDots").innerHTML = f.palette.map((p) => `<i style="background:${esc(p.hex)}" title="${esc(p.name)}"></i>`).join("");
+    $("removeBtn").disabled = state.functions.length <= 1;
+    document.querySelectorAll(".fn-name").forEach((n) => { n.textContent = f.name; });
+    baseTitle = `Harini's ${f.name.toLowerCase()} planner`;
+    updateTitle();
+  }
+
+  // ---------- overview ----------
+  function renderOverview() {
+    const f = F();
+    const done = f.tasks.filter((t) => t.done).length;
+    const total = f.tasks.length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    $("ovTasks").innerHTML = `<h3>Checklist</h3>
+      <div class="ring-wrap">${ring(pct)}<div><div class="fig">${done} of ${total}</div><div class="lbl">tasks done</div></div></div>`;
+
+    const b = budgetTotals();
+    $("ovBudget").innerHTML = `<h3>Budget</h3>` + (!f.expenses.length && !b.cap
+      ? `<p class="muted">Add your first expense in the Budget tab to start tracking.</p>`
+      : `<div class="fig">${inr(b.planned)}</div>
+         <div class="lbl">${b.cap ? `planned of ${inr(b.cap)}` : "planned so far"}</div>
+         <div class="meter ${b.over ? "over" : ""}"><i style="width:${b.pct}%"></i></div>
+         <ul class="legend">
+           <li>Paid<span class="v">${inr(b.paid)}</span></li>
+           <li>Left to pay<span class="v">${inr(b.planned - b.paid)}</span></li>
+           ${b.cap ? `<li>${b.over ? "Over budget by" : "Still unplanned"}<span class="v">${inr(Math.abs(b.cap - b.planned))}</span></li>` : ""}
+         </ul>`);
+
+    const g = guestStack();
+    $("ovGuests").innerHTML = `<h3>Guests</h3>` + (g.t
+      ? `<div class="fig">${g.c}</div><div class="lbl">of ${g.t} guests confirmed</div>${g.html}`
+      : g.html);
+
+    const next = f.tasks.filter((t) => !t.done).sort(byDue).slice(0, 5);
+    $("ovNext").innerHTML = `<h3>Next on the checklist</h3>` + (next.length
+      ? `<ul class="rows compact">${next.map((t) => taskRow(t, false)).join("")}</ul>`
+      : `<p class="muted">${f.tasks.length ? "Everything on the checklist is done." : "No tasks yet. Add one in the Checklist tab."}</p>`);
+
+    const up = f.events.filter((e) => e.date >= todayStr()).sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || ""))).slice(0, 4);
+    $("ovEvents").innerHTML = `<h3>Coming up</h3>` + (up.length
+      ? `<ul class="tl">${up.map((e) => eventRow(e, false)).join("")}</ul>`
+      : `<p class="muted">No upcoming events. Add the first one in the Events tab.</p>`);
+  }
+
+  // ---------- checklist ----------
+  function renderTasks() {
+    const f = F();
+    const items = f.tasks
+      .filter((t) => taskFilter === "all" || (taskFilter === "done" ? t.done : !t.done))
+      .sort((a, b) => (a.done - b.done) || byDue(a, b));
+    $("taskList").innerHTML = items.length
+      ? items.map((t) => taskRow(t, true)).join("")
+      : `<li class="empty">${f.tasks.length ? "Nothing in this view." : "No tasks yet. Add the first one above."}</li>`;
+    $("clearDone").hidden = !f.tasks.some((t) => t.done);
+  }
+
+  // ---------- budget ----------
+  function renderBudget() {
+    const f = F();
+    const b = budgetTotals();
+    $("totalBudget").value = f.totalBudget || "";
+    $("budgetBar").style.width = b.pct + "%";
+    $("budgetWeave").classList.toggle("over", !!b.over);
+    $("budgetSummary").textContent = b.cap
+      ? `${inr(b.planned)} planned of ${inr(b.cap)}. ${b.over ? inr(b.planned - b.cap) + " over budget" : inr(b.cap - b.planned) + " still unplanned"}. ${inr(b.paid)} paid so far.`
+      : `${inr(b.planned)} planned and ${inr(b.paid)} paid so far. Enter a total budget to see how much room is left.`;
+
+    $("budgetBody").innerHTML = f.expenses.map((e) => `
+      <tr>
+        <td><div class="t">${esc(e.name)}</div><div class="meta"><i class="dot" style="--c:${colorOf(e.cat)}"></i>${esc(e.cat)}</div></td>
+        <td class="num">${inr(e.est)}</td>
+        <td class="num"><input class="paid" type="number" min="0" value="${+e.paid || 0}" data-paid="${esc(e.id)}" aria-label="Amount paid for ${esc(e.name)}"></td>
+        <td class="num">${inr((+e.est || 0) - (+e.paid || 0))}</td>
+        <td><button class="x" data-del="expenses:${esc(e.id)}" aria-label="Remove ${esc(e.name)}">×</button></td>
+      </tr>`).join("") || `<tr><td colspan="5" class="empty-cell">No expenses yet. Add the first one above.</td></tr>`;
+
+    const by = {};
+    f.expenses.forEach((e) => (by[e.cat] = (by[e.cat] || 0) + (+e.est || 0)));
+    const entries = Object.entries(by).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+    $("catBreakdown").innerHTML = b.planned > 0 && entries.length
+      ? `<div class="budget-cats">${donut(by, b.planned)}
+          <ul class="legend">${entries.map(([k, v]) => `<li><i class="dot" style="--c:${colorOf(k)}"></i>${esc(k)}<span class="v">${inr(v)}</span><span class="pct">${Math.round((v / b.planned) * 100)}%</span></li>`).join("")}</ul>
+        </div>`
+      : `<p class="muted">Category totals appear here once you add an expense.</p>`;
+  }
+
+  // ---------- guests ----------
+  function renderGuests() {
+    const f = F();
+    $("guestSummary").innerHTML = guestStack().html;
+    const q = $("guestSearch").value.trim().toLowerCase();
+    const rows = f.guests.filter((g) => String(g.name).toLowerCase().includes(q));
+    $("guestBody").innerHTML = rows.map((g) => `
+      <tr>
+        <td class="t">${esc(g.name)}</td><td>${esc(g.side)}</td><td class="num">${+g.count || 1}</td>
+        <td><select class="${esc(g.rsvp)}" data-rsvp="${esc(g.id)}" aria-label="Reply from ${esc(g.name)}">
+          ${["Pending", "Confirmed", "Declined"].map((o) => `<option ${o === g.rsvp ? "selected" : ""}>${o}</option>`).join("")}
+        </select></td>
+        <td><button class="x" data-del="guests:${esc(g.id)}" aria-label="Remove ${esc(g.name)}">×</button></td>
+      </tr>`).join("") || `<tr><td colspan="5" class="empty-cell">${f.guests.length ? "No guest matches your search." : "No guests yet. Add the first one above."}</td></tr>`;
+  }
+
+  // ---------- events ----------
+  function renderEvents() {
+    const items = [...F().events].sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")));
+    $("eventList").innerHTML = items.length
+      ? items.map((e) => eventRow(e, true)).join("")
+      : `<li class="empty">No events yet. Add the first one above, such as the mehendi, sangeet or muhurtham.</li>`;
+    renderAlertStatus();
+  }
+
+  // ---------- mood board ----------
+  const orderedPhotos = () => {
+    const f = F();
+    if (moodFilter === "Favourites") return PHOTO_CATS.flatMap((c) => f.photos.filter((p) => p.cat === c && p.fav));
+    const cats = moodFilter === "All" ? PHOTO_CATS : [moodFilter];
+    return cats.flatMap((c) => f.photos.filter((p) => p.cat === c));
+  };
+
+  const tile = (p, showCat) => {
+    const url = urlCache.get(p.id);
+    const label = p.cap || `${p.cat} photo`;
+    return `<figure class="tile${p.cap ? " has-cap" : ""}">
+      <button class="tile-img" type="button" data-open="${esc(p.id)}" aria-label="View ${esc(label)}">${url ? `<img src="${esc(url)}" alt="${esc(label)}" loading="lazy">` : ""}</button>
+      <button class="heart" type="button" data-fav="${esc(p.id)}" aria-pressed="${p.fav}" aria-label="${p.fav ? "Remove from favourites" : "Add to favourites"}">${p.fav ? "♥" : "♡"}</button>
+      ${showCat ? `<span class="badge">${esc(p.cat)}</span>` : ""}
+      ${p.cap ? `<figcaption>${esc(p.cap)}</figcaption>` : ""}
+    </figure>`;
+  };
+
+  function renderMood() {
+    const f = F();
+    $("paletteRow").innerHTML = f.palette.map((p, i) => `
+      <div class="swatch">
+        <input type="color" value="${esc(p.hex)}" data-sw="${i}" aria-label="Colour ${i + 1}">
+        <input class="sw-name" value="${esc(p.name)}" data-swname="${i}" placeholder="Name" aria-label="Name of colour ${i + 1}">
+      </div>`).join("");
+
+    const favCount = f.photos.filter((p) => p.fav).length;
+    const chips = [["All", f.photos.length], ...PHOTO_CATS.map((c) => [c, f.photos.filter((p) => p.cat === c).length]), ["Favourites", favCount]];
+    $("moodChips").innerHTML = chips.map(([k, n]) => `<button type="button" data-mood="${k}" aria-pressed="${moodFilter === k}">${k}<span class="c">${n}</span></button>`).join("");
+
+    let html;
+    if (moodFilter === "All") {
+      html = PHOTO_CATS.map((c) => {
+        const ps = f.photos.filter((p) => p.cat === c);
+        return `<section class="cat-block"><h4>${c}<span class="count">${ps.length}</span></h4>${
+          ps.length ? `<div class="gallery">${ps.map((p) => tile(p, false)).join("")}</div>` : `<p class="muted empty-note">No ${c.toLowerCase()} photos yet. Choose "${c}" above and add some.</p>`}</section>`;
+      }).join("");
+    } else {
+      const ps = orderedPhotos();
+      html = ps.length
+        ? `<div class="gallery">${ps.map((p) => tile(p, moodFilter === "Favourites")).join("")}</div>`
+        : `<p class="muted empty-note">${moodFilter === "Favourites" ? "No favourites yet. Tap the heart on a photo to shortlist it." : `No ${moodFilter.toLowerCase()} photos yet. Add some above.`}</p>`;
+    }
+    $("photoGrid").innerHTML = html;
+  }
+
+  async function addFiles(files, cat) {
+    const f = F();
+    let skipped = 0;
+    for (const file of files) {
+      if (!file.type.startsWith("image/")) { skipped++; continue; }
+      try {
+        const blob = await shrink(file);
+        const id = uid();
+        await idbPut(id, blob);
+        urlCache.set(id, URL.createObjectURL(blob));
+        f.photos.push({ id, cat, cap: "", fav: false });
+      } catch { skipped++; }
+    }
+    commit();
+    if (skipped) alert(`${skipped} file${skipped > 1 ? "s" : ""} could not be added. Use JPG or PNG photos, and make sure this browser allows site storage.`);
+  }
+
+  // ---------- photo viewer ----------
+  const lb = { ids: [], i: 0, last: null };
+  const lightbox = $("lightbox");
+  const lbPhoto = () => F().photos.find((p) => p.id === lb.ids[lb.i]);
+  function lbShow() {
+    const p = lbPhoto();
+    if (!p) return lbClose();
+    $("lbImg").src = urlCache.get(p.id) || "";
+    $("lbImg").alt = p.cap || `${p.cat} photo`;
+    $("lbCount").textContent = `${lb.i + 1} of ${lb.ids.length}`;
+    $("lbCap").value = p.cap;
+    $("lbCat").value = p.cat;
+    $("lbFav").setAttribute("aria-pressed", p.fav);
+    $("lbFav").textContent = p.fav ? "♥ Favourite" : "♡ Favourite";
+    $("lbPrev").hidden = $("lbNext").hidden = lb.ids.length < 2;
+  }
+  function lbOpen(id) {
+    lb.ids = orderedPhotos().map((p) => p.id);
+    lb.i = Math.max(0, lb.ids.indexOf(id));
+    lb.last = document.activeElement;
+    lightbox.hidden = false;
+    document.body.style.overflow = "hidden";
+    lbShow();
+    $("lbClose").focus();
+  }
+  function lbClose() {
+    lightbox.hidden = true;
+    document.body.style.overflow = "";
+    $("lbImg").removeAttribute("src");
+    if (lb.last && lb.last.focus) { try { lb.last.focus(); } catch {} }
+  }
+  const lbStep = (d) => { if (lb.ids.length) { lb.i = (lb.i + d + lb.ids.length) % lb.ids.length; lbShow(); } };
+
+  // ---------- render everything ----------
+  function renderCounts() {
+    const f = F();
+    $("nTasks").textContent = f.tasks.filter((t) => !t.done).length;
+    $("nBudget").textContent = f.expenses.length;
+    $("nGuests").textContent = f.guests.length;
+    $("nEvents").textContent = f.events.length;
+    $("nMood").textContent = f.photos.length;
+  }
+  const renderAll = () => {
+    renderPages(); renderCover(); renderCounts(); renderOverview(); renderTasks(); renderBudget();
+    renderGuests(); renderEvents(); renderMood(); tick(); hydrate();
+  };
+
+  // keep keyboard focus on the same control after a re-render
+  const commit = () => {
+    if (!save()) alert("Browser storage is full. Export a backup and remove some data, then try again.");
+    const a = document.activeElement;
+    let key = null;
+    if (a && a.dataset) {
+      if (a.dataset.toggle) key = ["toggle", a.dataset.toggle];
+      else if (a.dataset.rsvp) key = ["rsvp", a.dataset.rsvp];
+      else if (a.dataset.paid) key = ["paid", a.dataset.paid];
+    }
+    renderAll();
+    if (key) {
+      const n = [...document.querySelectorAll(`[data-${key[0]}="${key[1]}"]`)].find((x) => x.offsetParent !== null);
+      if (n) n.focus();
+    }
+  };
+
+  // ---------- pages: add, rename, remove ----------
+  function addPage() {
+    const name = (prompt("Name of the new page, for example Mehendi or Sangeet") || "").trim().slice(0, 30);
+    if (!name) return;
+    const f = blankFn(uid(), name);
+    state.functions.push(f); state.current = f.id; moodFilter = "All";
+    commit(); window.scrollTo(0, 0);
+  }
+  function renamePage() {
+    const f = F();
+    const name = (prompt("New name for this page", f.name) || "").trim().slice(0, 30);
+    if (!name) return;
+    f.name = name; commit();
+  }
+  function removePage() {
+    if (state.functions.length <= 1) return;
+    const f = F();
+    if (!confirm(`Remove the ${f.name} page and everything saved on it? This cannot be undone.`)) return;
+    f.photos.forEach((p) => dropPhotoData(p.id));
+    state.functions = state.functions.filter((x) => x.id !== f.id);
+    state.current = state.functions[0].id; moodFilter = "All";
+    commit(); window.scrollTo(0, 0);
+  }
+
+  // ---------- wiring ----------
+  const catOptions = CATS.map(([c]) => `<option>${c}</option>`).join("");
+  $("taskCat").innerHTML = catOptions;
+  $("expCat").innerHTML = catOptions;
+  const photoCatOptions = PHOTO_CATS.map((c) => `<option>${c}</option>`).join("");
+  $("photoCat").innerHTML = photoCatOptions;
+  $("lbCat").innerHTML = photoCatOptions;
+
+  function showTab(name) {
+    document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === name));
+    document.querySelectorAll(".panel").forEach((p) => { p.hidden = p.id !== "tab-" + name; });
+    if (name === "activity") loadActivity();
+  }
+  document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
+
+  $("pagesBar").addEventListener("click", (e) => {
+    if (e.target.closest("#addPage")) return addPage();
+    const b = e.target.closest("[data-page]");
+    if (!b || b.dataset.page === state.current) return;
+    state.current = b.dataset.page; moodFilter = "All";
+    commit(); window.scrollTo({ top: 0 });
+  });
+  $("renameBtn").addEventListener("click", renamePage);
+  $("removeBtn").addEventListener("click", removePage);
+
+  $("weddingDate").addEventListener("change", (e) => { F().date = e.target.value; commit(); });
+
+  document.querySelectorAll(".seg button[data-filter]").forEach((c) =>
+    c.addEventListener("click", () => {
+      taskFilter = c.dataset.filter;
+      document.querySelectorAll(".seg button[data-filter]").forEach((x) => x.setAttribute("aria-pressed", x === c));
+      renderTasks();
+    }));
+
+  $("taskForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    F().tasks.push({ id: uid(), text: $("taskText").value.trim(), cat: $("taskCat").value, due: $("taskDue").value, done: false });
+    e.target.reset(); commit();
+  });
+  $("clearDone").addEventListener("click", () => {
+    const f = F(); const n = f.tasks.filter((t) => t.done).length;
+    if (n && confirm(`Remove ${n} completed task${n > 1 ? "s" : ""}?`)) { f.tasks = f.tasks.filter((t) => !t.done); commit(); }
+  });
+  $("budgetForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    F().expenses.push({ id: uid(), name: $("expName").value.trim(), cat: $("expCat").value, est: +$("expEst").value || 0, paid: +$("expPaid").value || 0 });
+    e.target.reset(); commit();
+  });
+  $("guestForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    F().guests.push({ id: uid(), name: $("guestName").value.trim(), side: $("guestSide").value, count: Math.max(1, +$("guestCount").value || 1), rsvp: $("guestRsvp").value });
+    e.target.reset(); $("guestCount").value = 1; commit();
+  });
+  $("eventForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    F().events.push({ id: uid(), name: $("evName").value.trim(), date: $("evDate").value, time: $("evTime").value, place: $("evPlace").value.trim(), reminded: false });
+    e.target.reset(); commit(); checkReminders();
+  });
+  $("totalBudget").addEventListener("change", (e) => { F().totalBudget = +e.target.value || 0; commit(); });
+  $("guestSearch").addEventListener("input", renderGuests);
+
+  // alerts
+  $("alertBtn").addEventListener("click", async () => {
+    try { await Notification.requestPermission(); } catch {}
+    renderAlertStatus();
+  });
+  $("testAlert").addEventListener("click", () => notify("Test reminder", "This is how a reminder looks. Real reminders appear 1 hour before each event."));
+  $("icsAll").addEventListener("click", () => {
+    const f = F(); const list = f.events.filter((e) => startOf(e));
+    if (!list.length) return alert("Add an event with a date and time first.");
+    downloadICS(f, list, `${f.name.toLowerCase().replace(/\W+/g, "-")}-events.ics`);
+  });
+
+  // mood board
+  $("moodChips").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-mood]");
+    if (!b) return;
+    moodFilter = b.dataset.mood;
+    if (PHOTO_CATS.includes(moodFilter)) $("photoCat").value = moodFilter;
+    renderMood();
+  });
+  $("photoBtn").addEventListener("click", () => $("photoFile").click());
+  $("photoFile").addEventListener("change", (e) => { const files = [...e.target.files]; e.target.value = ""; addFiles(files, $("photoCat").value); });
+  const sheet = $("photoSheet");
+  ["dragenter", "dragover"].forEach((ev) => sheet.addEventListener(ev, (e) => { e.preventDefault(); sheet.classList.add("drop"); }));
+  ["dragleave", "drop"].forEach((ev) => sheet.addEventListener(ev, (e) => { e.preventDefault(); sheet.classList.remove("drop"); }));
+  sheet.addEventListener("drop", (e) => { const fl = [...((e.dataTransfer && e.dataTransfer.files) || [])]; if (fl.length) addFiles(fl, $("photoCat").value); });
+
+  // viewer controls
+  $("lbClose").addEventListener("click", lbClose);
+  $("lbPrev").addEventListener("click", () => lbStep(-1));
+  $("lbNext").addEventListener("click", () => lbStep(1));
+  lightbox.addEventListener("click", (e) => { if (e.target === lightbox || e.target.id === "lbStage") lbClose(); });
+  $("lbCap").addEventListener("change", (e) => { const p = lbPhoto(); if (p) { p.cap = e.target.value.slice(0, 80); commit(); } });
+  $("lbCat").addEventListener("change", (e) => { const p = lbPhoto(); if (p) { p.cat = e.target.value; commit(); } });
+  $("lbFav").addEventListener("click", () => { const p = lbPhoto(); if (p) { p.fav = !p.fav; commit(); lbShow(); } });
+  $("lbDel").addEventListener("click", () => {
+    const p = lbPhoto();
+    if (!p || !confirm("Remove this photo?")) return;
+    F().photos = F().photos.filter((x) => x.id !== p.id);
+    dropPhotoData(p.id);
+    lb.ids.splice(lb.i, 1);
+    commit();
+    if (!lb.ids.length) return lbClose();
+    lb.i = Math.min(lb.i, lb.ids.length - 1);
+    lbShow();
+  });
+  let touchX = null;
+  $("lbStage").addEventListener("touchstart", (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+  $("lbStage").addEventListener("touchend", (e) => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX; touchX = null;
+    if (Math.abs(dx) > 50) lbStep(dx < 0 ? 1 : -1);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (lightbox.hidden) return;
+    const typing = e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT");
+    if (e.key === "Escape") lbClose();
+    else if (e.key === "ArrowLeft" && !typing) lbStep(-1);
+    else if (e.key === "ArrowRight" && !typing) lbStep(1);
+    else if (e.key === "Tab") {
+      const els = [...lightbox.querySelectorAll("button,input,select")].filter((x) => !x.hidden && !x.disabled);
+      if (!els.length) return;
+      const first = els[0], last = els[els.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  // delegated clicks
+  document.body.addEventListener("click", (e) => {
+    const del = e.target.closest("[data-del]");
+    if (del) {
+      const [k, id] = del.dataset.del.split(":");
+      const f = F();
+      if (Array.isArray(f[k])) { f[k] = f[k].filter((x) => x.id !== id); commit(); }
+      return;
+    }
+    const dis = e.target.closest("[data-dismiss]");
+    if (dis) {
+      const i = alerts.findIndex((a) => a.id === dis.dataset.dismiss);
+      if (i >= 0) { alerts.splice(i, 1); renderAlerts(); }
+      return;
+    }
+    const open = e.target.closest("[data-open]");
+    if (open) return lbOpen(open.dataset.open);
+    const fav = e.target.closest("[data-fav]");
+    if (fav) { const p = F().photos.find((x) => x.id === fav.dataset.fav); if (p) { p.fav = !p.fav; commit(); } return; }
+    const ics = e.target.closest("[data-ics]");
+    if (ics) {
+      const f = F(); const ev = f.events.find((x) => x.id === ics.dataset.ics);
+      if (ev && startOf(ev)) downloadICS(f, [ev], `${ev.name.toLowerCase().replace(/\W+/g, "-") || "event"}.ics`);
+    }
+  });
+  document.body.addEventListener("change", (e) => {
+    const d = e.target.dataset, f = F();
+    if (d.toggle) { const t = f.tasks.find((x) => x.id === d.toggle); if (t) t.done = e.target.checked; }
+    else if (d.paid) { const x = f.expenses.find((y) => y.id === d.paid); if (x) x.paid = +e.target.value || 0; }
+    else if (d.rsvp) { const g = f.guests.find((y) => y.id === d.rsvp); if (g) g.rsvp = e.target.value; }
+    else if (d.sw !== undefined) { const p = f.palette[+d.sw]; if (p && HEX.test(e.target.value)) p.hex = e.target.value; }
+    else if (d.swname !== undefined) { const p = f.palette[+d.swname]; if (p) p.name = e.target.value.slice(0, 24); }
+    else return;
+    commit();
+  });
+
+  // ---------- backup (photos included) ----------
+  $("exportBtn").addEventListener("click", async () => {
+    const out = JSON.parse(JSON.stringify(state));
+    for (const fn of out.functions) {
+      for (const p of fn.photos) {
+        try { const b = await idbGet(p.id); if (b) p.src = await blobToDataURL(b); } catch {}
+      }
+    }
+    downloadFile("harini-wedding-backup.json", new Blob([JSON.stringify(out)], { type: "application/json" }));
+  });
+  $("importBtn").addEventListener("click", () => $("importFile").click());
+  $("importFile").addEventListener("change", async (e) => {
+    const file = e.target.files[0]; e.target.value = "";
+    if (!file) return;
+    if (!confirm("Restoring a backup replaces everything in the shared planner for everyone. Continue?")) return;
+    try {
+      const next = sanitize(JSON.parse(await file.text()), true);
+      for (const fn of next.functions) {
+        for (const p of fn.photos) { await idbPut(p.id, dataURLToBlob(p.src)); delete p.src; }
+      }
+      state.functions.forEach((fn) => fn.photos.forEach((p) => { if (!next.functions.some((n) => n.photos.some((q) => q.id === p.id))) dropPhotoData(p.id); }));
+      state = next; moodFilter = "All";
+      commit();
+    } catch { alert("That file could not be read. Choose a backup exported from this page."); }
+  });
+  // =====================================================================
+  // Shared planner: sync with Supabase
+  // =====================================================================
+  const SK = { remote: "harini-remote", meta: "harini-meta", owner: "harini-owner", profile: "harini-profile" };
+  const S = {
+    remote: new Map(), ord: new Map(), uploaded: new Set(), trash: new Set(),
+    baseline: false, busy: false, again: false, pushTimer: null, active: false,
+    profile: null, deferRender: false,
+  };
+  const canon = (v) => JSON.stringify(v, (k, x) =>
+    x && typeof x === "object" && !Array.isArray(x) ? Object.fromEntries(Object.keys(x).sort().map((i) => [i, x[i]])) : x);
+
+  function persistSync() {
+    try {
+      localStorage.setItem(SK.remote, JSON.stringify([...S.remote]));
+      localStorage.setItem(SK.meta, JSON.stringify({ baseline: S.baseline, ord: [...S.ord], uploaded: [...S.uploaded], trash: [...S.trash] }));
+    } catch {}
+  }
+  function restoreSync() {
+    try {
+      S.remote = new Map(JSON.parse(localStorage.getItem(SK.remote) || "[]"));
+      const m = JSON.parse(localStorage.getItem(SK.meta) || "{}");
+      S.baseline = !!m.baseline; S.ord = new Map(m.ord || []); S.uploaded = new Set(m.uploaded || []); S.trash = new Set(m.trash || []);
+    } catch { S.remote = new Map(); S.baseline = false; }
+  }
+  async function wipeLocal() {
+    [KEY, SK.remote, SK.meta, SK.owner, SK.profile, "harini-lock"].forEach((k) => { try { localStorage.removeItem(k); } catch {} });
+    try { await idb("readwrite", (st) => st.clear()); } catch {}
+  }
+
+  let seq = 0;
+  const ordOf = (id) => {
+    let o = S.ord.get(id);
+    if (o === undefined) { o = Date.now() * 1000 + (seq++ % 1000); S.ord.set(id, o); }
+    return o;
+  };
+
+  // the planner as flat rows, the same shape the database stores
+  function toRows(st) {
+    const rows = new Map();
+    st.functions.forEach((f, i) => {
+      rows.set("p:" + f.id, { t: "pages", row: { id: f.id, name: f.name, date: f.date || null, total_budget: +f.totalBudget || 0, palette: f.palette, position: i } });
+      const add = (kind, list, pick) => list.forEach((x) => {
+        rows.set("i:" + x.id, { t: "items", row: { id: x.id, page_id: f.id, kind, data: { ...pick(x), ord: ordOf(x.id) } } });
+      });
+      add("task", f.tasks, (x) => ({ text: x.text, cat: x.cat, due: x.due, done: x.done }));
+      add("expense", f.expenses, (x) => ({ name: x.name, cat: x.cat, est: x.est, paid: x.paid }));
+      add("guest", f.guests, (x) => ({ name: x.name, side: x.side, count: x.count, rsvp: x.rsvp }));
+      add("event", f.events, (x) => ({ name: x.name, date: x.date, time: x.time, place: x.place }));
+      add("photo", f.photos.filter((x) => S.uploaded.has(x.id)), (x) => ({ cat: x.cat, cap: x.cap, fav: x.fav }));
+    });
+    return rows;
+  }
+  function serverRows(pages, items) {
+    const m = new Map();
+    pages.forEach((r) => m.set("p:" + r.id, { t: "pages", row: { id: r.id, name: r.name, date: r.date || null, total_budget: Number(r.total_budget) || 0, palette: r.palette, position: Number(r.position) || 0 } }));
+    items.forEach((r) => m.set("i:" + r.id, { t: "items", row: { id: r.id, page_id: r.page_id, kind: r.kind, data: r.data || {} } }));
+    return m;
+  }
+
+  function rebuild(rows) {
+    const all = [...rows.values()];
+    const items = all.filter((x) => x.t === "items").map((x) => x.row);
+    items.forEach((i) => { if (i.data && i.data.ord !== undefined) S.ord.set(i.id, i.data.ord); });
+    const fns = all.filter((x) => x.t === "pages").map((x) => x.row).sort((a, b) => a.position - b.position).map((p) => {
+      const old = state.functions.find((f) => f.id === p.id);
+      const mine = items.filter((i) => i.page_id === p.id).sort((a, b) => ((a.data && a.data.ord) || 0) - ((b.data && b.data.ord) || 0));
+      const pick = (kind) => mine.filter((i) => i.kind === kind).map((i) => ({ ...i.data, id: i.id }));
+      const events = pick("event").map((e) => { const o = old && old.events.find((x) => x.id === e.id); return { ...e, reminded: !!(o && o.reminded) }; });
+      const f = cleanFn({
+        id: p.id, name: p.name, date: p.date || "", totalBudget: p.total_budget, palette: p.palette,
+        tasks: pick("task"), expenses: pick("expense"), guests: pick("guest"), events, photos: pick("photo"),
+      }, false);
+      if (old) old.photos.forEach((ph) => { if (!S.uploaded.has(ph.id) && !f.photos.some((x) => x.id === ph.id)) f.photos.push(ph); });
+      return f;
+    });
+    if (!fns.length) return;
+    state = { v: 2, current: fns.some((f) => f.id === state.current) ? state.current : fns[0].id, functions: fns };
+    // photos other people added are known on the server; photos they removed are gone
+    const live = new Set(items.filter((i) => i.kind === "photo").map((i) => i.id));
+    items.forEach((i) => { if (i.kind === "photo") S.uploaded.add(i.id); });
+    [...S.uploaded].forEach((id) => {
+      if (live.has(id)) return;
+      S.uploaded.delete(id);
+      idbDel(id).catch(() => {});
+      const u = urlCache.get(id); if (u) URL.revokeObjectURL(u);
+      urlCache.delete(id); tried.delete(id);
+    });
+  }
+
+  function renderSoon() {
+    const a = document.activeElement;
+    if (a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)) { S.deferRender = true; return; }
+    S.deferRender = false;
+    renderAll();
+  }
+  document.addEventListener("focusout", () => { if (S.deferRender) setTimeout(renderSoon, 60); });
+
+  // changes made here win over older copies; everything else follows the shared version
+  function mergeIn(server) {
+    const local = toRows(state);
+    const result = new Map();
+    let changed = false;
+    for (const k of new Set([...local.keys(), ...server.keys()])) {
+      const L = local.get(k), V = server.get(k), R = S.remote.get(k);
+      const res = canon(L) !== canon(R) ? L : V;
+      if (res) result.set(k, res);
+      if (canon(res) !== canon(L)) changed = true;
+    }
+    S.remote = server;
+    if (changed) { rebuild(result); saveLocal(); renderSoon(); }
+  }
+
+  async function pull() {
+    const [pg, it] = await Promise.all([Cloud.fetchAll("pages"), Cloud.fetchAll("items")]);
+    const server = serverRows(pg, it);
+    if (!pg.length && S.baseline && [...S.remote.keys()].some((k) => k[0] === "p")) {
+      // the database answers with nothing when access has been removed
+      const e = new Error("access"); e.status = 403; throw e;
+    }
+    if (!S.baseline) {
+      if (pg.length) { // the planner already exists online: use it, do not add this device's starter data
+        S.remote = server; S.baseline = true;
+        rebuild(server); saveLocal(); renderSoon();
+      } else { S.baseline = true; }   // nothing online yet: this device's data is uploaded by the push that follows
+      return;
+    }
+    mergeIn(server);
+  }
+
+  async function push() {
+    // photos first: the picture must be in storage before other people see its tile
+    for (const f of state.functions) {
+      for (const p of f.photos) {
+        if (S.uploaded.has(p.id)) continue;
+        const blob = await idbGet(p.id).catch(() => null);
+        if (!blob) continue;
+        await Cloud.uploadPhoto(p.id, blob);
+        S.uploaded.add(p.id);
+      }
+    }
+    if (S.trash.size) { await Cloud.deletePhotos([...S.trash]); S.trash.clear(); }
+    const local = toRows(state);
+    const up = { pages: [], items: [] }, upKeys = [];
+    for (const [k, v] of local) {
+      const r = S.remote.get(k);
+      if (!r || canon(r) !== canon(v)) { up[v.t].push(v.row); upKeys.push(k); }
+    }
+    const del = { pages: [], items: [] }, delKeys = [];
+    for (const [k, r] of S.remote) if (!local.has(k)) { del[r.t].push(r.row.id); delKeys.push(k); }
+    if (up.pages.length) await Cloud.upsert("pages", up.pages);
+    if (up.items.length) await Cloud.upsert("items", up.items);
+    if (del.items.length) await Cloud.remove("items", del.items);
+    if (del.pages.length) await Cloud.remove("pages", del.pages);
+    upKeys.forEach((k) => S.remote.set(k, local.get(k)));
+    delKeys.forEach((k) => S.remote.delete(k));
+  }
+
+  function setSync(kind, text) {
+    $("syncChip").dataset.s = kind;
+    $("syncText").textContent = text;
+  }
+  async function pendingCount() {
+    if (!S.profile || !S.profile.is_admin) return;
+    const list = await Cloud.listProfiles();
+    const n = list.filter((p) => !p.approved).length;
+    $("pendingN").textContent = n; $("pendingN").hidden = !n;
+    if (!$("people").hidden) renderPeople(list);
+  }
+
+  async function cycle() {
+    if (!S.active) return;
+    if (S.busy) { S.again = true; return; }
+    S.busy = true; setSync("busy", "Syncing…");
+    try {
+      if (!S.baseline) await pull();
+      await push();
+      await pull();
+      await pendingCount().catch(() => {});
+      if (!$("tab-activity").hidden) loadActivity();
+      setSync("idle", "Saved and shared");
+    } catch (e) {
+      if (e.offline) setSync("off", "Offline. Changes are saved here and will upload later");
+      else if (e.status === 401 || e.status === 403) recheckAccess();
+      else setSync("off", "Could not sync. Trying again soon");
+    } finally {
+      S.busy = false; persistSync();
+      if (S.again) { S.again = false; setTimeout(cycle, 300); }
+    }
+  }
+  function kick() {
+    if (!S.active) return;
+    clearTimeout(S.pushTimer);
+    S.pushTimer = setTimeout(cycle, 500);
+  }
+  const hasUnsynced = () => {
+    if (!S.baseline) return true;
+    const local = toRows(state);
+    if (state.functions.some((f) => f.photos.some((p) => !S.uploaded.has(p.id)))) return true;
+    for (const [k, v] of local) { const r = S.remote.get(k); if (!r || canon(r) !== canon(v)) return true; }
+    for (const k of S.remote.keys()) if (!local.has(k)) return true;
+    return false;
+  };
+
+  // =====================================================================
+  // Sign-in gate
+  // =====================================================================
+  let waitTimer = null;
+  const body = () => $("gateBody");
+  function showGate(view, arg) {
+    clearInterval(waitTimer); S.active = false;
+    $("app").hidden = true; $("gate").hidden = false;
+    ({ loading: gLoading, setup: gSetup, auth: gAuth, wait: gWait, reset: gReset, error: gError }[view])(arg);
+    const f = body().querySelector("input,button.btn"); if (f && view !== "loading") { try { f.focus({ preventScroll: true }); } catch {} }
+  }
+  const gLoading = () => { body().innerHTML = `<div class="spin" role="status" aria-label="Opening your planner"></div>`; };
+  const gSetup = () => {
+    body().innerHTML = `<h2>Not connected yet</h2>
+      <p>This planner needs its shared database before anyone can sign in. Open <b>config.js</b>, paste your Supabase project URL and public key, then upload the folder again.</p>
+      <p class="muted">The step-by-step guide is in SETUP-SUPABASE.txt.</p>`;
+  };
+  const gError = (msg) => {
+    body().innerHTML = `<h2>Can't open the planner</h2><p>${esc(msg)}</p>
+      <div class="row"><button class="btn" id="gRetry" type="button">Try again</button></div>
+      <div class="row"><button class="link" id="gOut" type="button">Sign out</button></div>`;
+    $("gRetry").onclick = boot; $("gOut").onclick = doSignOut;
+  };
+  const friendly = (e, mode) => {
+    if (e.offline) return "You are offline. Connect to the internet and try again.";
+    const m = String(e.message || "");
+    if (/invalid login/i.test(m)) return "That email and password do not match. Check them, or choose Forgot password.";
+    if (/already registered|already been registered/i.test(m)) return "An account with this email already exists. Choose Sign in instead.";
+    if (/email not confirmed/i.test(m)) return "Confirm your email first. Open the link we sent you, then sign in.";
+    if (/password/i.test(m) && /(least|short|weak)/i.test(m)) return m;
+    if (/rate limit|too many/i.test(m)) return "Too many tries. Wait a few minutes and try again.";
+    return mode === "up" ? "Could not create the account. " + m : "Could not sign in. " + m;
+  };
+  function gAuth(mode) {
+    mode = mode === "up" ? "up" : "in";
+    body().innerHTML = `
+      <div class="gate-tabs" role="tablist" aria-label="Account">
+        <button type="button" role="tab" data-mode="in" aria-selected="${mode === "in"}">Sign in</button>
+        <button type="button" role="tab" data-mode="up" aria-selected="${mode === "up"}">Create account</button>
+      </div>
+      <form id="authForm" novalidate>
+        ${mode === "up" ? `<label>Your name<input class="field" id="gName" autocomplete="name" maxlength="40" required></label>` : ""}
+        <label>Email<input class="field" id="gEmail" type="email" autocomplete="email" inputmode="email" required></label>
+        <label>Password<input class="field" id="gPass" type="password" autocomplete="${mode === "up" ? "new-password" : "current-password"}" minlength="8" required></label>
+        <p class="msg" id="gMsg" role="status">${mode === "up" ? "Use at least 8 characters." : ""}</p>
+        <button class="btn" type="submit">${mode === "up" ? "Create account" : "Sign in"}</button>
+        ${mode === "in" ? `<div class="row"><button type="button" class="link" id="gForgot">Forgot password?</button></div>`
+          : `<p class="muted">The planner owner approves new accounts before they can open it.</p>`}
+      </form>`;
+    const msg = (t, k) => { $("gMsg").textContent = t; $("gMsg").className = "msg " + (k || ""); };
+    body().querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => gAuth(b.dataset.mode)));
+    $("authForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = $("gEmail").value.trim(), pass = $("gPass").value, name = mode === "up" ? $("gName").value.trim() : "";
+      if (mode === "up" && !name) return msg("Enter your name so the owner knows who is asking.", "err");
+      if (!/^\S+@\S+\.\S+$/.test(email)) return msg("Enter a valid email address.", "err");
+      if (pass.length < 8) return msg("The password needs at least 8 characters.", "err");
+      const btn = e.target.querySelector(".btn"); btn.disabled = true; msg(mode === "up" ? "Creating your account…" : "Signing in…");
+      try {
+        if (mode === "up") {
+          const r = await Cloud.signUp(email, pass, name);
+          if (!r.signedIn) { btn.disabled = false; return msg("Account created. Check your email and open the confirmation link, then sign in.", "ok"); }
+        } else await Cloud.signIn(email, pass);
+        boot();
+      } catch (er) { btn.disabled = false; msg(friendly(er, mode), "err"); }
+    });
+    const fg = $("gForgot");
+    if (fg) fg.addEventListener("click", async () => {
+      const email = $("gEmail").value.trim();
+      if (!/^\S+@\S+\.\S+$/.test(email)) return msg("Type your email above first, then choose Forgot password.", "err");
+      try { await Cloud.recover(email); msg("If that email has an account, a reset link is on its way.", "ok"); }
+      catch (er) { msg(friendly(er, "in"), "err"); }
+    });
+  }
+  function gWait(p) {
+    const who = esc((p && p.display_name) || (Cloud.session && Cloud.session.user.name) || "there");
+    const mail = esc((p && p.email) || (Cloud.session && Cloud.session.user.email) || "");
+    body().innerHTML = `<h2>Waiting for approval</h2>
+      <p>Hi ${who}. The planner owner needs to approve ${mail} before you can open it.</p>
+      <p class="wait-note">This page checks every few seconds. You can close it and come back later.</p>
+      <div class="row"><button class="btn quiet small" id="gCheck" type="button" style="width:auto;padding:0 20px">Check now</button>
+      <button class="link" id="gOut" type="button">Sign out</button></div><p class="msg" id="gMsg" role="status"></p>`;
+    $("gOut").onclick = doSignOut;
+    const check = async () => {
+      try { const pr = await Cloud.getProfile(); if (pr && pr.approved) { clearInterval(waitTimer); boot(); } else if ($("gMsg")) $("gMsg").textContent = ""; }
+      catch (e) { if ($("gMsg")) $("gMsg").textContent = e.offline ? "You are offline." : ""; }
+    };
+    $("gCheck").onclick = check;
+    waitTimer = setInterval(check, 5000);
+  }
+  function gReset() {
+    body().innerHTML = `<h2>Choose a new password</h2>
+      <form id="rForm" novalidate>
+        <label>New password<input class="field" id="rPass" type="password" autocomplete="new-password" minlength="8" required></label>
+        <p class="msg" id="gMsg" role="status">Use at least 8 characters.</p>
+        <button class="btn" type="submit">Save password</button>
+      </form>`;
+    $("rForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const pw = $("rPass").value;
+      if (pw.length < 8) { $("gMsg").textContent = "The password needs at least 8 characters."; $("gMsg").className = "msg err"; return; }
+      try { await Cloud.updatePassword(pw); boot(); }
+      catch (er) { $("gMsg").textContent = friendly(er, "in"); $("gMsg").className = "msg err"; }
+    });
+  }
+
+  async function doSignOut() {
+    if (S.active && hasUnsynced() && !confirm("Some changes have not uploaded yet and will be lost if you sign out. Sign out anyway?")) return;
+    S.active = false;
+    await Cloud.signOut();
+    await wipeLocal();
+    location.reload();
+  }
+  function recheckAccess() {
+    Cloud.getProfile().then((p) => { if (!p || !p.approved) showGate("wait", p); }).catch(() => {});
+  }
+  window.addEventListener("cloud-signedout", () => { if (S.active) { S.active = false; showGate("auth", "in"); } });
+
+  // =====================================================================
+  // People and approvals (admin)
+  // =====================================================================
+  let peopleReturn = null;
+  function renderPeople(list) {
+    const me = Cloud.session && Cloud.session.user.id;
+    list = [...list].sort((a, b) => (a.approved - b.approved) || String(a.created_at).localeCompare(String(b.created_at)));
+    $("peopleList").innerHTML = list.map((p) => {
+      const tag = p.approved ? (p.is_admin ? `<span class="tag">Admin</span>` : `<span class="tag">Approved</span>`) : `<span class="tag wait">Waiting</span>`;
+      const mine = p.id === me;
+      const acts = mine ? "" : (p.approved
+        ? `<button class="btn quiet small" type="button" data-p="${esc(p.id)}" data-do="${p.is_admin ? "unadmin" : "admin"}">${p.is_admin ? "Remove admin" : "Make admin"}</button>
+           <button class="btn warn small" type="button" data-p="${esc(p.id)}" data-do="revoke">Remove access</button>`
+        : `<button class="btn small" type="button" data-p="${esc(p.id)}" data-do="approve">Approve</button>`);
+      return `<div class="person"><div class="who"><b>${esc(p.display_name || p.email)}${mine ? " (you)" : ""} ${tag}</b><span>${esc(p.email)}</span></div><div class="acts">${acts}</div></div>`;
+    }).join("") || `<p class="muted">Nobody has signed up yet.</p>`;
+  }
+  async function openPeople() {
+    peopleReturn = document.activeElement;
+    $("people").hidden = false; document.body.style.overflow = "hidden";
+    $("peopleClose").focus();
+    $("peopleList").innerHTML = `<div class="spin" role="status"></div>`;
+    try { renderPeople(await Cloud.listProfiles()); } catch (e) { $("peopleList").innerHTML = `<p>${e.offline ? "You are offline." : "Could not load the list."}</p>`; }
+  }
+  function closePeople() {
+    $("people").hidden = true; document.body.style.overflow = "";
+    if (peopleReturn && peopleReturn.focus) peopleReturn.focus();
+  }
+  $("peopleBtn").addEventListener("click", openPeople);
+  $("peopleClose").addEventListener("click", closePeople);
+  $("people").addEventListener("click", (e) => { if (e.target.id === "people") closePeople(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("people").hidden) closePeople(); });
+  $("peopleList").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-do]");
+    if (!b) return;
+    const patch = { approve: { approved: true }, revoke: { approved: false, is_admin: false }, admin: { is_admin: true }, unadmin: { is_admin: false } }[b.dataset.do];
+    if (b.dataset.do === "revoke" && !confirm("Remove this person's access? They will no longer see or edit the planner.")) return;
+    b.disabled = true;
+    try { await Cloud.setProfile(b.dataset.p, patch); await pendingCount(); renderPeople(await Cloud.listProfiles()); }
+    catch (er) { alert(er.offline ? "You are offline. Try again when you are connected." : "Could not save that change. " + er.message); b.disabled = false; }
+  });
+  $("signOutBtn").addEventListener("click", doSignOut);
+
+  // =====================================================================
+  // Start
+  // =====================================================================
+  let started = false;
+  function enterApp(profile) {
+    S.profile = profile;
+    try { localStorage.setItem(SK.profile, JSON.stringify(profile)); } catch {}
+    const me = Cloud.session.user.id;
+    const owner = localStorage.getItem(SK.owner);
+    const proceed = () => {
+      try { localStorage.setItem(SK.owner, me); } catch {}
+      restoreSync();
+      if (!loadLocal(KEY) && !S.baseline) loadLocal(LEGACY_KEY);
+      if (!state.functions.length) state = freshState();
+      $("whoName").textContent = profile.display_name || profile.email || "";
+      $("peopleBtn").hidden = !profile.is_admin;
+      $("importBtn").hidden = !profile.is_admin;
+      $("gate").hidden = true; $("app").hidden = false;
+      tried.clear();
+      lockInit(); showTab("overview"); renderAll(); renderAlerts(); renderAlertStatus(); checkReminders();
+      if (!started) {
+        started = true;
+        setInterval(tick, 30000);
+        setInterval(checkReminders, 20000);
+        setInterval(() => { if (!document.hidden) cycle(); }, 6000);
+        document.addEventListener("visibilitychange", () => { if (!document.hidden) { checkReminders(); tick(); cycle(); } });
+        window.addEventListener("online", () => { tried.clear(); cycle(); });
+        window.addEventListener("offline", () => setSync("off", "Offline. Changes are saved here and will upload later"));
+      }
+      S.active = true;
+      setSync(navigator.onLine === false ? "off" : "busy", navigator.onLine === false ? "Offline. Changes are saved here and will upload later" : "Syncing…");
+      cycle();
+    };
+    if (owner && owner !== me) wipeLocal().then(proceed); else proceed();
+  }
+
+  async function boot() {
+    clearInterval(waitTimer);
+    if (!Cloud.configured) return showGate("setup");
+    showGate("loading");
+    const link = await Cloud.takeLink();
+    if (!Cloud.session) return showGate("auth", "in");
+    if (link === "recovery") return showGate("reset");
+    try {
+      const p = await Cloud.getProfile();
+      if (!p || !p.approved) return showGate("wait", p);
+      enterApp(p);
+    } catch (e) {
+      // offline: open with the last known access if this device already signed in
+      let cached = null; try { cached = JSON.parse(localStorage.getItem(SK.profile)); } catch {}
+      if (e.offline && cached && cached.approved && cached.id === Cloud.session.user.id) return enterApp(cached);
+      if (e.status === 401) return showGate("auth", "in");
+      showGate("error", e.offline ? "You are offline. Connect to the internet to sign in." : "Something went wrong. " + e.message);
+    }
+  }
+
+
+  // =====================================================================
+  // App lock (PIN on this device, on top of the sign-in)
+  // =====================================================================
+  const LK = "harini-lock", enc = new TextEncoder();
+  const lockCfg = () => { try { return JSON.parse(localStorage.getItem(LK)); } catch { return null; } };
+  const lockSave = (c) => { try { c ? localStorage.setItem(LK, JSON.stringify(c)) : localStorage.removeItem(LK); } catch {} };
+  const canLock = !!(window.crypto && crypto.subtle);
+  async function pinHash(pin, salt) {
+    const k = await crypto.subtle.importKey("raw", enc.encode(pin), "PBKDF2", false, ["deriveBits"]);
+    const b = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: enc.encode(salt), iterations: 150000, hash: "SHA-256" }, k, 256);
+    return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("");
+  }
+  const TITLES = { enter: "Enter your PIN", verify: "Enter your current PIN", set1: "Choose a 4-digit PIN", set2: "Enter it again to confirm" };
+  let lm = null, buf = "", first = "", afterOk = null, hiddenAt = 0;
+  const pinDots = () => [...$("pinDots").children].forEach((d, i) => d.classList.toggle("on", i < buf.length));
+  function lockShow(mode, msg) {
+    lm = mode; buf = ""; $("lockTitle").textContent = TITLES[mode]; $("lockMsg").textContent = msg || "";
+    $("lock").hidden = false; $("app").inert = true;
+    $("lockCancel").hidden = mode === "enter"; $("lockForgot").hidden = mode !== "enter"; pinDots();
+  }
+  function lockHide() { lm = null; $("lock").hidden = true; $("app").inert = false; }
+  const waitMsg = (c) => "Too many tries. Wait " + Math.ceil((c.until - Date.now()) / 1000) + " seconds.";
+  async function pinKey(k) {
+    if (!lm) return;
+    const c = lockCfg();
+    if ((lm === "enter" || lm === "verify") && c && c.until > Date.now()) { $("lockMsg").textContent = waitMsg(c); return; }
+    if (k === "b") buf = buf.slice(0, -1); else if (buf.length < 4) buf += k;
+    pinDots(); if (buf.length < 4) return;
+    const pin = buf; buf = "";
+    if (lm === "set1") { first = pin; lm = "set2"; $("lockTitle").textContent = TITLES.set2; $("lockMsg").textContent = ""; setTimeout(pinDots, 120); return; }
+    if (lm === "set2") {
+      if (pin !== first) return lockShow("set1", "The PINs did not match. Try again.");
+      const salt = Math.random().toString(36).slice(2) + Date.now();
+      lockSave({ salt, hash: await pinHash(pin, salt), mins: c && c.mins !== undefined ? c.mins : 1, fails: 0, until: 0 });
+      lockHide(); secRender(); return;
+    }
+    if (c && (await pinHash(pin, c.salt)) === c.hash) {
+      c.fails = 0; c.until = 0; lockSave(c);
+      const f = afterOk; afterOk = null; lockHide(); if (f) f(); return;
+    }
+    if (!c) return lockHide();
+    c.fails = (c.fails || 0) + 1; if (c.fails >= 5) c.until = Date.now() + 30000 * (c.fails - 4); lockSave(c);
+    lockShow(lm, c.until > Date.now() ? waitMsg(c) : "Wrong PIN. " + (5 - c.fails) + " tries left.");
+  }
+  $("keys").innerHTML = [1, 2, 3, 4, 5, 6, 7, 8, 9, "", 0, "b"].map((k) => k === "" ? "<span></span>" : `<button type="button" data-k="${k}" aria-label="${k === "b" ? "Delete" : k}">${k === "b" ? "⌫" : k}</button>`).join("");
+  $("keys").addEventListener("click", (e) => { const b = e.target.closest("[data-k]"); if (b) pinKey(b.dataset.k); });
+  document.addEventListener("keydown", (e) => { if (!lm) return; if (/^\d$/.test(e.key)) pinKey(e.key); else if (e.key === "Backspace") pinKey("b"); });
+  $("lockCancel").addEventListener("click", () => { afterOk = null; lockHide(); });
+  $("lockForgot").addEventListener("click", () => doSignOut());
+  document.addEventListener("visibilitychange", () => {
+    const c = lockCfg(); if (!c) return;
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (lm || $("app").hidden) return;
+    if (c.mins >= 0 && hiddenAt && Date.now() - hiddenAt >= c.mins * 60000) lockShow("enter");
+  });
+  function lockInit() {
+    $("lockBtn").hidden = !canLock;
+    if (canLock && lockCfg()) lockShow("enter");
+  }
+  function secRender() {
+    const c = lockCfg();
+    $("secHint").textContent = c
+      ? "A PIN is set. It is asked when you open the planner on this device. It only protects this device. If you forget it, sign out and sign in again."
+      : "Add a 4-digit PIN that is asked when you open the planner on this device. It sits on top of your email sign-in.";
+    $("secActions").innerHTML = c
+      ? '<button class="btn quiet" data-sec="change" type="button">Change PIN</button><button class="btn quiet" data-sec="remove" type="button">Remove PIN</button>'
+      : '<button class="btn" data-sec="set" type="button">Set a PIN</button>';
+    $("secAfterRow").hidden = !c; if (c) $("secAfter").value = String(c.mins);
+  }
+  $("lockBtn").addEventListener("click", () => { secRender(); $("sec").hidden = false; });
+  $("secClose").addEventListener("click", () => { $("sec").hidden = true; });
+  $("secAfter").addEventListener("change", () => { const c = lockCfg(); if (c) { c.mins = +$("secAfter").value; lockSave(c); } });
+  $("secActions").addEventListener("click", (e) => {
+    const a = e.target.closest("[data-sec]"); if (!a) return;
+    $("sec").hidden = true;
+    if (a.dataset.sec === "set") lockShow("set1");
+    else { afterOk = a.dataset.sec === "change" ? () => lockShow("set1") : () => { lockSave(null); }; lockShow("verify"); }
+  });
+
+  // =====================================================================
+  // Activity log (written by the database, so it cannot be skipped)
+  // =====================================================================
+  let actRows = [], actF = "all";
+  const ago = (iso) => {
+    const s = (Date.now() - new Date(iso)) / 1000;
+    if (s < 60) return "just now"; if (s < 3600) return Math.floor(s / 60) + " min ago"; if (s < 86400) return Math.floor(s / 3600) + " h ago";
+    return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  };
+  function renderActivity(msg) {
+    const list = actF === "page" ? actRows.filter((r) => r.page_id === state.current) : actRows;
+    $("actList").innerHTML = msg ? `<li class="muted">${esc(msg)}</li>` : list.length ? list.map((r) => `<li class="act"><span class="av" aria-hidden="true">${esc((r.actor_name || "?")[0].toUpperCase())}</span><div><p><b>${esc(r.actor_name || "Someone")}</b> ${esc(r.action)} ${r.kind === "page" ? "the page" : "the " + esc(r.kind)} “${esc(r.summary || "")}”</p><small class="muted">${esc(r.page_name || "")} · ${ago(r.at)}</small></div></li>`).join("") : '<li class="muted">No changes recorded yet.</li>';
+    document.querySelectorAll("#actSeg button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.af === actF));
+  }
+  async function loadActivity() {
+    try { actRows = await Cloud.fetchActivity(); renderActivity(); }
+    catch (e) { renderActivity(e.offline ? "You are offline." : "The activity log is not set up yet. Run the updated supabase-setup.sql once in Supabase."); }
+  }
+  $("actSeg").addEventListener("click", (e) => { const b = e.target.closest("[data-af]"); if (b) { actF = b.dataset.af; renderActivity(); } });
+
+  // =====================================================================
+  // Import checklist from txt, csv or docx
+  // =====================================================================
+  let curCat = "Other", impItems = [];
+  const normCat = (s) => { s = String(s || "").trim().toLowerCase(); return CAT_NAMES.find((c) => s && (c.toLowerCase() === s || (s.length >= 4 && c.toLowerCase().startsWith(s)))) || ""; };
+  function normDate(s) {
+    s = String(s || "").trim(); let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/); if (m) return s;
+    m = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/); if (m) return `${m[3]}-${pad(m[2])}-${pad(m[1])}`;
+    if (/[a-z]/i.test(s)) { const d = new Date(s); if (!isNaN(d) && d.getFullYear() > 2000) return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+    return "";
+  }
+  const DUE_END = /[\s(,|-]*(?:due|by|on)?[:\s]*\(?(\d{4}-\d{2}-\d{2}|\d{1,2}[\/.-]\d{1,2}[\/.-]\d{4})\)?\s*$/i;
+  function fromLines(lines) {
+    const out = [];
+    for (const L of lines) {
+      let t = String(L.text || "").replace(/\s+/g, " ").trim(); if (!t) continue;
+      let done = !!L.done;
+      if (L.heading || /^#{1,6}\s/.test(t) || (/:$/.test(t) && t.length < 40)) { curCat = normCat(t.replace(/^#+\s*|:$/g, "")) || curCat; continue; }
+      if (/^\s*(\[[xX✓✔]\]|[☑✓✔])/.test(t)) done = true;
+      for (let i = 0; i < 3; i++) t = t.replace(/^\s*(?:[-*•▪◦–]|\d+[.)]|\[[ xX✓✔]?\]|[☐☑✓✔])\s*/, "");
+      let cat = curCat; const pm = t.match(/^([A-Za-z ]{3,14}):\s+(.+)$/);
+      if (pm && normCat(pm[1])) { cat = normCat(pm[1]); t = pm[2]; }
+      let due = ""; const dm = t.match(DUE_END);
+      if (dm && dm.index > 0) { due = dateOk(normDate(dm[1])); t = t.slice(0, dm.index).trim(); }
+      if (t) out.push({ text: t.slice(0, 120), cat, due, done });
+    }
+    return out;
+  }
+  function csvRows(t, d) {
+    const rows = []; let r = [], c = "", q = false;
+    for (let i = 0; i < t.length; i++) {
+      const ch = t[i];
+      if (q) { if (ch === '"') { if (t[i + 1] === '"') { c += '"'; i++; } else q = false; } else c += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === d) { r.push(c); c = ""; }
+      else if (ch === "\n" || ch === "\r") { if (ch === "\r" && t[i + 1] === "\n") i++; r.push(c); c = ""; rows.push(r); r = []; }
+      else c += ch;
+    }
+    r.push(c); rows.push(r); return rows.filter((x) => x.some((y) => y.trim()));
+  }
+  function fromTable(rows) {
+    if (!rows.length) return [];
+    const head = rows[0].map((x) => x.trim().toLowerCase());
+    const col = (re) => head.findIndex((x) => re.test(x));
+    let ti = col(/^(task|item|title|to-?do|text|name|checklist)/), ci = col(/^(cat|section|type|group)/), di = col(/^(due|date|deadline|by|when)/), ni = col(/^(done|status|complete|checked)/);
+    const hasHead = ti >= 0 || ci >= 0 || di >= 0 || ni >= 0;
+    if (!hasHead) ti = 0; else if (ti < 0) ti = head.findIndex((_, i) => i !== ci && i !== di && i !== ni);
+    return (hasHead ? rows.slice(1) : rows).map((r) => ({
+      text: String(r[ti] || "").replace(/\s+/g, " ").trim().slice(0, 120),
+      cat: normCat(r[ci]) || "Other", due: di >= 0 ? dateOk(normDate(r[di])) : "",
+      done: ni >= 0 && /^(y|yes|true|1|x|done|complete|checked)/i.test(String(r[ni] || "").trim()),
+    })).filter((x) => x.text);
+  }
+  async function zipText(buf, name) {
+    const v = new DataView(buf); let e = buf.byteLength - 22;
+    while (e >= 0 && v.getUint32(e, true) !== 0x06054b50) e--;
+    if (e < 0) throw new Error("zip");
+    let n = v.getUint16(e + 10, true), p = v.getUint32(e + 16, true);
+    for (let i = 0; i < n; i++) {
+      const method = v.getUint16(p + 10, true), cs = v.getUint32(p + 20, true), nl = v.getUint16(p + 28, true), el = v.getUint16(p + 30, true), cl = v.getUint16(p + 32, true), lh = v.getUint32(p + 42, true);
+      if (new TextDecoder().decode(new Uint8Array(buf, p + 46, nl)) === name) {
+        const st = lh + 30 + v.getUint16(lh + 26, true) + v.getUint16(lh + 28, true), data = new Uint8Array(buf, st, cs);
+        if (method === 0) return new TextDecoder().decode(data);
+        return new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text();
+      }
+      p += 46 + nl + el + cl;
+    }
+    throw new Error("zip");
+  }
+  async function docxItems(buf) {
+    const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+    const doc = new DOMParser().parseFromString(await zipText(buf, "word/document.xml"), "application/xml");
+    const body = doc.getElementsByTagNameNS(W, "body")[0]; if (!body) throw new Error("docx");
+    const all = (el) => [...el.getElementsByTagName("*")];
+    const ptext = (p) => all(p).filter((n) => n.localName === "t" || n.localName === "tab").map((n) => n.localName === "t" ? n.textContent : " ").join("");
+    let lines = [], out = [];
+    const flush = () => { out.push(...fromLines(lines)); lines = []; };
+    for (const ch of body.children) {
+      if (ch.localName === "p") {
+        const st = ch.getElementsByTagNameNS(W, "pStyle")[0], style = st ? st.getAttributeNS(W, "val") || "" : "";
+        const strike = all(ch).some((n) => n.localName === "strike" && !/^(0|false)$/.test(n.getAttributeNS(W, "val") || ""));
+        const chk = all(ch).some((n) => n.localName === "checked" && /^(1|true)$/.test(n.getAttribute("w14:val") || ""));
+        lines.push({ text: ptext(ch), heading: /^(Heading|Title)/i.test(style), done: strike || chk });
+      } else if (ch.localName === "tbl") {
+        flush();
+        out.push(...fromTable([...ch.getElementsByTagNameNS(W, "tr")].map((tr) => [...tr.getElementsByTagNameNS(W, "tc")].map((tc) => [...tc.getElementsByTagNameNS(W, "p")].map(ptext).join(" ").trim()))));
+      }
+    }
+    flush(); return out;
+  }
+  function impOpen(items, hint) {
+    const have = new Set(F().tasks.map((t) => t.text.trim().toLowerCase()));
+    impItems = items.slice(0, 300).map((x) => ({ ...x, dup: have.has(x.text.toLowerCase()) }));
+    $("impHint").textContent = hint || `Adding to ${F().name}. Untick anything you do not want. Tasks already on the list are unticked.`;
+    $("impList").innerHTML = impItems.map((x, i) => `<li><label><input type="checkbox" data-i="${i}" ${x.dup ? "" : "checked"}><span>${esc(x.text)}<br><small class="muted">${esc(x.cat)}${x.due ? " · due " + esc(fmt(x.due, { day: "numeric", month: "short", year: "numeric" })) : ""}${x.done ? " · done" : ""}${x.dup ? " · already on the list" : ""}</small></span></label></li>`).join("");
+    $("impAdd").hidden = !impItems.length; $("imp").hidden = false;
+  }
+  $("impBtn").addEventListener("click", () => $("impFile").click());
+  $("impFile").addEventListener("change", async () => {
+    const f = $("impFile").files[0]; $("impFile").value = ""; if (!f) return;
+    curCat = "Other"; const ext = (f.name.split(".").pop() || "").toLowerCase();
+    try {
+      let items;
+      if (ext === "docx") items = await docxItems(await f.arrayBuffer());
+      else if (ext === "doc" || ext === "pdf") return impOpen([], "Old .doc and PDF files cannot be read here. Save the file as .docx or .txt and try again.");
+      else {
+        const t = (await f.text()).replace(/^\uFEFF/, "");
+        if (ext === "csv") { const l = t.split(/\r?\n/)[0] || ""; const d = [",", ";", "\t"].sort((a, b) => l.split(b).length - l.split(a).length)[0]; items = fromTable(csvRows(t, d)); }
+        else items = fromLines(t.split(/\r?\n/).map((x) => ({ text: x })));
+      }
+      impOpen(items, items.length ? "" : "No tasks were found in that file. Put one task on each line.");
+    } catch { impOpen([], "That file could not be read. Try saving it again as .docx, .txt or .csv."); }
+  });
+  $("impAdd").addEventListener("click", () => {
+    const pick = [...document.querySelectorAll("#impList input:checked")].map((c) => impItems[+c.dataset.i]);
+    pick.forEach((x) => F().tasks.push({ id: uid(), text: x.text, cat: x.cat, due: x.due, done: x.done }));
+    $("imp").hidden = true; if (pick.length) commit();
+  });
+  [$("impClose"), $("impCancel")].forEach((b) => b.addEventListener("click", () => { $("imp").hidden = true; }));
+
+  // offline support and install, only when served over http(s)
+  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+    navigator.serviceWorker.register("sw.js").then((r) => { swReg = r; }).catch(() => {});
+  }
+  boot();
+})();
+
+</script>
+</body>
+</html>
