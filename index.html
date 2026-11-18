@@ -351,6 +351,8 @@ body{background-color:var(--linen);background-image:radial-gradient(1100px 480px
 .av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--forest),var(--forest-deep));color:var(--gold2);font-weight:500}
 .imp-list{max-height:48vh;overflow:auto;padding:0;margin:10px 0}.imp-list li{list-style:none;padding:8px 0;border-bottom:1px solid var(--line)}.imp-list label{display:flex;gap:10px;align-items:flex-start}
 .imp-foot{display:flex;justify-content:flex-end;gap:10px}
+.pn-leads{display:flex;gap:10px 22px;flex-wrap:wrap;margin:12px 0}.pn-leads label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.pn-leads input{width:20px;height:20px;accent-color:var(--forest)}#pnStatus{min-height:1.5em;margin:10px 0 0}
 </style>
 </head>
 <body>
@@ -479,6 +481,11 @@ body{background-color:var(--linen);background-image:radial-gradient(1100px 480px
       <input type="number" id="expPaid" min="0" aria-label="Amount paid in rupees" placeholder="Paid ₹">
       <button class="btn">Add expense</button>
     </form>
+    <div class="alertbar">
+      <button class="btn quiet small" id="impBBtn" type="button">Import expenses</button>
+      <input type="file" id="impBFile" accept=".txt,.md,.csv,.docx,text/plain,text/csv" hidden>
+      <p class="muted">From a .txt, .csv or .docx file. One expense per line, for example: Hall advance - 50000 (paid 20000)</p>
+    </div>
     <div class="sheet">
       <label class="field-row">Total budget (₹)
         <input class="field" type="number" id="totalBudget" min="0" step="1000" placeholder="For example 500000">
@@ -552,6 +559,22 @@ body{background-color:var(--linen);background-image:radial-gradient(1100px 480px
     </div>
     <div class="sheet">
       <ul class="tl" id="eventList"></ul>
+    </div>
+    <div class="sheet" id="pushSheet">
+      <h3>Phone notifications</h3>
+      <p class="muted">Get a notification on this phone before each event, even when the app is closed. Turn it on separately on each phone.</p>
+      <div class="pn-leads" role="group" aria-label="When to notify">
+        <label><input type="checkbox" id="pn15"> 15 min before</label>
+        <label><input type="checkbox" id="pn30"> 30 min before</label>
+        <label><input type="checkbox" id="pn60" checked> 1 hour before</label>
+      </div>
+      <div class="sec-actions">
+        <button class="btn" id="pnOn" type="button">Turn on notifications</button>
+        <button class="btn quiet" id="pnTest" type="button" hidden>Send a test</button>
+        <button class="btn quiet" id="pnOff" type="button" hidden>Turn off</button>
+      </div>
+      <p id="pnStatus" class="muted" role="status"></p>
+      <p class="muted"><small>iPhone: first add the app to your Home Screen (Safari, Share, Add to Home Screen) and open it from there, then turn this on.</small></p>
     </div>
   </section>
 
@@ -793,11 +816,13 @@ body{background-color:var(--linen);background-image:radial-gradient(1100px 480px
   const deletePhotos = (ids) =>
     req("/storage/v1/object/photos", { method: "DELETE", body: { prefixes: ids.map((i) => i + ".jpg") } });
 
+  const rpc = (name, args) => req("/rest/v1/rpc/" + name, { method: "POST", body: args || {} });
   const fetchActivity = () => req("/rest/v1/activity?select=*&order=at.desc&limit=150");
   window.Cloud = {
-    configured, fetchActivity, signUp, signIn, signOut, recover, updatePassword, takeLink, refresh,
+    configured, fetchActivity, rpc, signUp, signIn, signOut, recover, updatePassword, takeLink, refresh,
     getProfile, listProfiles, setProfile, fetchAll, upsert, remove, uploadPhoto, downloadPhoto, deletePhotos,
     get session() { return session; },
+    get url() { return base; },
   };
 })();
 
@@ -1066,6 +1091,7 @@ body{background-color:var(--linen);background-image:radial-gradient(1100px 480px
 
   // ---------- reminders (1 hour before each event) ----------
   let swReg = null;
+  let pnSub = null;   // this phone's push subscription, when notifications are on
   const alerts = [];
   function updateTitle() { document.title = (alerts.length ? "⏰ " : "") + baseTitle; }
   function renderAlerts() {
@@ -1080,7 +1106,7 @@ body{background-color:var(--linen);background-image:radial-gradient(1100px 480px
     alerts.push({ id: uid(), title, body });
     renderAlerts();
     try {
-      if (window.Notification && Notification.permission === "granted") {
+      if (!pnSub && window.Notification && Notification.permission === "granted") {   // with push on, the server sends the phone alert
         // installed apps on Android need the service worker to show notifications
         if (swReg && swReg.showNotification) swReg.showNotification(title, { body, icon: "icon-192.png", badge: "icon-192.png" });
         else new Notification(title, { body });
@@ -1524,6 +1550,7 @@ body{background-color:var(--linen);background-image:radial-gradient(1100px 480px
     document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === name));
     document.querySelectorAll(".panel").forEach((p) => { p.hidden = p.id !== "tab-" + name; });
     if (name === "activity") loadActivity();
+    if (name === "events") loadPush();
   }
   document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
 
@@ -2015,6 +2042,7 @@ body{background-color:var(--linen);background-image:radial-gradient(1100px 480px
   async function doSignOut() {
     if (S.active && hasUnsynced() && !confirm("Some changes have not uploaded yet and will be lost if you sign out. Sign out anyway?")) return;
     S.active = false;
+    await pnDetach();
     await Cloud.signOut();
     await wipeLocal();
     location.reload();
@@ -2082,6 +2110,7 @@ body{background-color:var(--linen);background-image:radial-gradient(1100px 480px
       if (!loadLocal(KEY) && !S.baseline) loadLocal(LEGACY_KEY);
       if (!state.functions.length) state = freshState();
       $("whoName").textContent = profile.display_name || profile.email || "";
+      if (profile.is_admin) Cloud.rpc("push_register_project", { p_url: Cloud.url, p_contact: profile.email || "" }).catch(() => {});
       $("peopleBtn").hidden = !profile.is_admin;
       $("importBtn").hidden = !profile.is_admin;
       $("gate").hidden = true; $("app").hidden = false;
@@ -2292,14 +2321,15 @@ body{background-color:var(--linen);background-image:radial-gradient(1100px 480px
     }
     throw new Error("zip");
   }
-  async function docxItems(buf) {
+  async function docxItems(buf, mode) {
+    const LF = mode === "budget" ? budgetFromLines : fromLines, TF = mode === "budget" ? budgetFromTable : fromTable;
     const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
     const doc = new DOMParser().parseFromString(await zipText(buf, "word/document.xml"), "application/xml");
     const body = doc.getElementsByTagNameNS(W, "body")[0]; if (!body) throw new Error("docx");
     const all = (el) => [...el.getElementsByTagName("*")];
     const ptext = (p) => all(p).filter((n) => n.localName === "t" || n.localName === "tab").map((n) => n.localName === "t" ? n.textContent : " ").join("");
     let lines = [], out = [];
-    const flush = () => { out.push(...fromLines(lines)); lines = []; };
+    const flush = () => { out.push(...LF(lines)); lines = []; };
     for (const ch of body.children) {
       if (ch.localName === "p") {
         const st = ch.getElementsByTagNameNS(W, "pStyle")[0], style = st ? st.getAttributeNS(W, "val") || "" : "";
@@ -2308,22 +2338,101 @@ body{background-color:var(--linen);background-image:radial-gradient(1100px 480px
         lines.push({ text: ptext(ch), heading: /^(Heading|Title)/i.test(style), done: strike || chk });
       } else if (ch.localName === "tbl") {
         flush();
-        out.push(...fromTable([...ch.getElementsByTagNameNS(W, "tr")].map((tr) => [...tr.getElementsByTagNameNS(W, "tc")].map((tc) => [...tc.getElementsByTagNameNS(W, "p")].map(ptext).join(" ").trim()))));
+        out.push(...TF([...ch.getElementsByTagNameNS(W, "tr")].map((tr) => [...tr.getElementsByTagNameNS(W, "tc")].map((tc) => [...tc.getElementsByTagNameNS(W, "p")].map(ptext).join(" ").trim()))));
       }
     }
     flush(); return out;
   }
-  function impOpen(items, hint) {
-    const have = new Set(F().tasks.map((t) => t.text.trim().toLowerCase()));
-    impItems = items.slice(0, 300).map((x) => ({ ...x, dup: have.has(x.text.toLowerCase()) }));
-    $("impHint").textContent = hint || `Adding to ${F().name}. Untick anything you do not want. Tasks already on the list are unticked.`;
-    $("impList").innerHTML = impItems.map((x, i) => `<li><label><input type="checkbox" data-i="${i}" ${x.dup ? "" : "checked"}><span>${esc(x.text)}<br><small class="muted">${esc(x.cat)}${x.due ? " · due " + esc(fmt(x.due, { day: "numeric", month: "short", year: "numeric" })) : ""}${x.done ? " · done" : ""}${x.dup ? " · already on the list" : ""}</small></span></label></li>`).join("");
+  let impMode = "task", impSkipped = 0;
+  function impOpen(items, hint, mode) {
+    impMode = mode || "task";
+    const bud = impMode === "budget";
+    const have = new Set((bud ? F().expenses.map((e) => e.name) : F().tasks.map((t) => t.text)).map((s) => s.trim().toLowerCase()));
+    impItems = items.slice(0, 300).map((x) => ({ ...x, dup: have.has((bud ? x.name : x.text).toLowerCase()) }));
+    $("impTitle").textContent = bud ? "Import expenses" : "Import tasks";
+    $("impAdd").textContent = bud ? "Add expenses" : "Add tasks";
+    const skip = impSkipped ? ` ${impSkipped} line${impSkipped === 1 ? "" : "s"} without an amount ${impSkipped === 1 ? "was" : "were"} skipped.` : "";
+    $("impHint").textContent = hint || (`Adding to ${F().name}. Untick anything you do not want. ${bud ? "Expenses" : "Tasks"} already on the list are unticked.` + (bud ? skip : ""));
+    $("impList").innerHTML = impItems.map((x, i) => `<li><label><input type="checkbox" data-i="${i}" ${x.dup ? "" : "checked"}><span>${esc(bud ? x.name : x.text)}<br><small class="muted">${esc(x.cat)}${bud ? " · estimated " + inr(x.est) + (x.paid ? " · paid " + inr(x.paid) : "") : (x.due ? " · due " + esc(fmt(x.due, { day: "numeric", month: "short", year: "numeric" })) : "") + (x.done ? " · done" : "")}${x.dup ? " · already on the list" : ""}</small></span></label></li>`).join("");
     $("impAdd").hidden = !impItems.length; $("imp").hidden = false;
   }
+
+  // ---- expenses: amounts, categories, lines and tables ----
+  const CAT_WORDS = [["Venue", /venue|hall|resort|auditorium|lawn|mandap|banquet|room/i], ["Catering", /cater|food|meal|menu|cook|sweet|snack|beverage|drinks?/i], ["Attire", /saree|sari|dress|lehenga|attire|jewel|gold|ornament|suit|sherwani|tailor|blouse|makeup|mehendi|henna|salon|beauty/i], ["Decor", /decor|flower|stage|light|balloon|mandap decor|garland/i], ["Photography", /photo|video|album|drone|camera|reel/i], ["Invitations", /invit|card|print|stationery/i], ["Rituals", /pooja|puja|priest|ritual|homam|purohit|temple/i], ["Travel", /travel|cab|bus|taxi|hotel|stay|lodg|flight|train|transport/i]];
+  const guessCat = (n) => { const m = CAT_WORDS.find(([, re]) => re.test(n)); return m ? m[0] : "Other"; };
+  function parseAmt(s) {
+    const m = String(s || "").match(/(\d[\d,]*(?:\.\d+)?)\s*(lakhs?|lacs?|k|cr(?:ores?)?)?(?![A-Za-z])/i);
+    if (!m) return 0;
+    let n = parseFloat(m[1].replace(/,/g, "")); if (!isFinite(n)) return 0;
+    const u = (m[2] || "").toLowerCase();
+    if (u === "k") n *= 1e3; else if (/^(lakh|lac)/.test(u)) n *= 1e5; else if (/^cr/.test(u)) n *= 1e7;
+    return Math.round(n);
+  }
+  const AMT_RE = /(₹|\brs\.?|\binr)?\s*(\d[\d,]*(?:\.\d+)?)\s*(lakhs?|lacs?|k|cr(?:ores?)?)?(?![A-Za-z0-9])/gi;
+  const SKIP_TOTAL = /^\s*(grand\s+)?(sub\s*)?(total|balance|remaining|left|summary)\b/i;
+  function budgetFromLines(lines) {
+    const out = [];
+    for (const L of lines) {
+      let t = String(L.text || "").replace(/\s+/g, " ").trim(); if (!t) { curCat = ""; continue; }  // a blank line ends a group
+      for (let i = 0; i < 3; i++) t = t.replace(/^\s*(?:[-*•▪◦–]|\d+[.)]|\[[ xX✓✔]?\]|[☐☑✓✔])\s*/, "");
+      t = t.replace(/^#{1,6}\s*/, "");
+      if (!t) continue;
+      if (L.heading || (/:$/.test(t) && !/\d/.test(t) && t.length < 40)) { curCat = normCat(t.replace(/:$/, "")) || curCat; continue; }
+      if (SKIP_TOTAL.test(t)) continue;
+      let cat = curCat; const pm = t.match(/^([A-Za-z ]{3,14}):\s+(.+)$/);
+      if (pm && normCat(pm[1])) { cat = normCat(pm[1]); t = pm[2]; }
+      t = t.replace(/\b\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}\b|\b\d{4}-\d{2}-\d{2}\b/g, " ");
+      let paid = 0;
+      const pd = t.match(/\bpaid\b[^\d]{0,12}(?:₹|rs\.?|inr)?\s*(\d[\d,]*(?:\.\d+)?\s*(?:lakhs?|lacs?|k|cr(?:ores?)?)?)/i);
+      if (pd) { paid = parseAmt(pd[1]); t = t.replace(pd[0], " "); }
+      const cands = [...t.matchAll(AMT_RE)].map((m) => ({ i: m.index, v: parseAmt(m[0].replace(/^(₹|rs\.?|inr)\s*/i, "")), mark: !!(m[1] || m[3]) }));
+      const pick = [...cands].reverse().find((c) => c.mark) || [...cands].reverse().find((c) => c.v >= 100) || cands[cands.length - 1];
+      if (!pick || !pick.v) { impSkipped++; continue; }
+      const name = t.slice(0, pick.i).replace(/[\s:=|\-–—,(]+$/g, "").replace(/(₹|\brs\.?|\binr)\s*$/i, "").replace(/[\s:=|\-–—,(]+$/g, "").trim();
+      if (!name) { impSkipped++; continue; }
+      out.push({ name: name.slice(0, 120), cat: cat || guessCat(name), est: pick.v, paid });
+    }
+    return out;
+  }
+  function budgetFromTable(rows) {
+    if (!rows.length) return [];
+    const head = rows[0].map((x) => x.trim().toLowerCase());
+    const col = (re, not) => head.findIndex((x, i) => re.test(x) && i !== not);
+    let pi = col(/paid|advance/), ci = col(/^(cat|section|type|group)/);
+    let ni = col(/^(expense|item|name|particular|description|vendor|task)/), ei = col(/(est|budget|amount|cost|total|price|planned|quote)/, pi);
+    const hasHead = ni >= 0 || ei >= 0 || pi >= 0;
+    if (!hasHead) { ni = 0; ei = 1; pi = 2; ci = -1; } else if (ni < 0) ni = head.findIndex((_, i) => i !== ci && i !== ei && i !== pi);
+    return (hasHead ? rows.slice(1) : rows).map((r) => {
+      const name = String(r[ni] || "").replace(/\s+/g, " ").trim().slice(0, 120);
+      const paid = pi >= 0 ? parseAmt(r[pi]) : 0; let est = ei >= 0 ? parseAmt(r[ei]) : 0;
+      if (!est && paid) est = paid;
+      return { name, cat: normCat(r[ci]) || guessCat(name), est, paid };
+    }).filter((x) => x.name && x.est && !SKIP_TOTAL.test(x.name));
+  }
+  const readAny = async (f, mode) => {
+    const ext = (f.name.split(".").pop() || "").toLowerCase();
+    if (ext === "docx") return docxItems(await f.arrayBuffer(), mode);
+    if (ext === "doc" || ext === "pdf") return null;
+    const t = (await f.text()).replace(/^﻿/, "");
+    const bud = mode === "budget";
+    if (ext === "csv") { const l = t.split(/\r?\n/)[0] || ""; const d = [",", ";", "\t"].sort((a, b) => l.split(b).length - l.split(a).length)[0]; return (bud ? budgetFromTable : fromTable)(csvRows(t, d)); }
+    return (bud ? budgetFromLines : fromLines)(t.split(/\r?\n/).map((x) => ({ text: x })));
+  };
+  $("impBBtn").addEventListener("click", () => $("impBFile").click());
+  $("impBFile").addEventListener("change", async () => {
+    const f = $("impBFile").files[0]; $("impBFile").value = ""; if (!f) return;
+    curCat = ""; impSkipped = 0;
+    try {
+      const items = await readAny(f, "budget");
+      if (items === null) return impOpen([], "Old .doc and PDF files cannot be read here. Save the file as .docx, .csv or .txt and try again.", "budget");
+      impOpen(items, items.length ? "" : "No expenses were found. Put one expense on each line with its amount, for example: Hall advance - 50000", "budget");
+    } catch { impOpen([], "That file could not be read. Try saving it again as .docx, .txt or .csv.", "budget"); }
+  });
   $("impBtn").addEventListener("click", () => $("impFile").click());
   $("impFile").addEventListener("change", async () => {
     const f = $("impFile").files[0]; $("impFile").value = ""; if (!f) return;
     curCat = "Other"; const ext = (f.name.split(".").pop() || "").toLowerCase();
+    impSkipped = 0;
     try {
       let items;
       if (ext === "docx") items = await docxItems(await f.arrayBuffer());
@@ -2338,10 +2447,92 @@ body{background-color:var(--linen);background-image:radial-gradient(1100px 480px
   });
   $("impAdd").addEventListener("click", () => {
     const pick = [...document.querySelectorAll("#impList input:checked")].map((c) => impItems[+c.dataset.i]);
-    pick.forEach((x) => F().tasks.push({ id: uid(), text: x.text, cat: x.cat, due: x.due, done: x.done }));
+    if (impMode === "budget") pick.forEach((x) => F().expenses.push({ id: uid(), name: x.name, cat: catOk(x.cat), est: x.est, paid: x.paid }));
+    else pick.forEach((x) => F().tasks.push({ id: uid(), text: x.text, cat: x.cat, due: x.due, done: x.done }));
     $("imp").hidden = true; if (pick.length) commit();
   });
   [$("impClose"), $("impCancel")].forEach((b) => b.addEventListener("click", () => { $("imp").hidden = true; }));
+
+
+
+  // =====================================================================
+  // Phone notifications (Web Push): sent by the server, so they arrive with the app closed
+  // =====================================================================
+  const PN_LABEL = { 15: "15 minutes", 30: "30 minutes", 60: "1 hour" };
+  const pnSay = (t, bad) => { const el = $("pnStatus"); el.textContent = t; el.style.color = bad ? "var(--rouge-deep)" : ""; };
+  const pnSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window && /^https?:$/.test(location.protocol);
+  const pnTz = () => { let z = "Asia/Kolkata"; try { z = Intl.DateTimeFormat().resolvedOptions().timeZone || z; } catch {} return z === "Asia/Calcutta" ? "Asia/Kolkata" : z; };
+  const pnLeads = () => [15, 30, 60].filter((n) => $("pn" + n).checked);
+  const pnKeyBytes = (s) => { const r = atob((s + "=".repeat((4 - (s.length % 4)) % 4)).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(r, (c) => c.charCodeAt(0)); };
+  const pnReg = () => Promise.race([navigator.serviceWorker.ready, new Promise((_, rej) => setTimeout(() => rej(new Error("sw")), 8000))]);
+  let pnLoaded = false, pnKey = null;
+  function pnShow(on) { $("pnOn").textContent = on ? "Save times" : "Turn on notifications"; $("pnTest").hidden = !on; $("pnOff").hidden = !on; }
+  async function loadPush(force) {
+    if (!pnSupported()) {
+      pnSay("This browser cannot show notifications while the app is closed. On iPhone, add the app to your Home Screen and open it from there. On Android, use Chrome.", true);
+      $("pnOn").disabled = true; return;
+    }
+    if (pnLoaded && !force) return;
+    try {
+      const reg = await pnReg();
+      pnSub = await reg.pushManager.getSubscription();
+      const leads = pnSub ? await Cloud.rpc("push_get", { p_endpoint: pnSub.endpoint }) : null;
+      if (!leads) pnSub = null;
+      Cloud.rpc("push_public_key").then((k) => { pnKey = k || null; }).catch(() => {});   // fetched ahead so the tap can ask permission straight away
+      if (leads) { [15, 30, 60].forEach((n) => { $("pn" + n).checked = leads.includes(n); }); pnShow(true); pnSay("Notifications are on for this phone."); }
+      else { pnShow(false); pnSay(Notification.permission === "denied" ? "Notifications are blocked for this site. Allow them in the browser's site settings, then try again." : "Notifications are off on this phone."); }
+      pnLoaded = true;
+    } catch (e) {
+      pnSay(e.offline ? "You are offline." : "Notifications are not switched on yet. Run supabase-push.sql in Supabase (see SETUP-SUPABASE.txt).", true);
+    }
+  }
+  async function pnTurnOn() {
+    const leads = pnLeads();
+    if (!leads.length) return pnSay("Choose at least one time: 15 min, 30 min or 1 hour.", true);
+    if (!pnSupported()) return loadPush();
+    $("pnOn").disabled = true;
+    try {
+      if (Notification.permission === "default") await Notification.requestPermission();
+      if (Notification.permission !== "granted") return pnSay("Notifications are blocked. Allow them for this site in the browser settings, then try again.", true);
+      pnSay("Turning on…");
+      const key = pnKey || (pnKey = await Cloud.rpc("push_public_key"));
+      if (!key) return pnSay("The server is not ready yet. Check that the send-push function is deployed and the owner has opened the app, wait a minute, then try again.", true);
+      const reg = await pnReg(), want = pnKeyBytes(key);
+      let sub = await reg.pushManager.getSubscription();
+      if (sub) {
+        const have = new Uint8Array(sub.options.applicationServerKey || []);
+        if (have.length !== want.length || have.some((v, i) => v !== want[i])) { await sub.unsubscribe(); sub = null; }
+      }
+      if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: want });
+      const j = sub.toJSON();
+      await Cloud.rpc("push_save", { p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth, p_leads: leads, p_tz: pnTz() });
+      pnSub = sub; pnLoaded = true; pnShow(true);
+      pnSay(`On. This phone will get a notification ${leads.map((n) => PN_LABEL[n]).join(", ")} before each event.`);
+    } catch (e) {
+      pnSay(e.offline ? "You are offline. Try again when you are connected." : "Could not turn on notifications on this phone. " + (e && e.name === "NotAllowedError" ? "Allow notifications for this site and try again." : "Try again in a minute."), true);
+    } finally { $("pnOn").disabled = false; }
+  }
+  async function pnTurnOff() {
+    try {
+      if (pnSub) { await Cloud.rpc("push_remove", { p_endpoint: pnSub.endpoint }); await pnSub.unsubscribe(); }
+      pnSub = null; pnShow(false); pnSay("Notifications are off on this phone.");
+    } catch (e) { pnSay(e.offline ? "You are offline." : "Could not turn off. Try again.", true); }
+  }
+  async function pnDetach() {   // on sign out, stop alerts for this account on this phone
+    try {
+      if (!pnSupported()) return;
+      const reg = await Promise.race([navigator.serviceWorker.ready, new Promise((r) => setTimeout(r, 1500))]);
+      const sub = reg && reg.pushManager ? await reg.pushManager.getSubscription() : null;
+      if (sub) { await Cloud.rpc("push_remove", { p_endpoint: sub.endpoint }).catch(() => {}); await sub.unsubscribe().catch(() => {}); }
+    } catch {}
+  }
+  $("pnOn").addEventListener("click", pnTurnOn);
+  $("pnOff").addEventListener("click", pnTurnOff);
+  $("pnTest").addEventListener("click", async () => {
+    if (!pnSub) return;
+    try { await Cloud.rpc("push_test", { p_endpoint: pnSub.endpoint }); pnSay("Test sent. It should appear on this phone within a minute."); }
+    catch (e) { pnSay(e.offline ? "You are offline." : "Could not send the test. Turn notifications on again and retry.", true); }
+  });
 
   // offline support and install, only when served over http(s)
   if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
